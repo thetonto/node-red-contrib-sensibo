@@ -1,0 +1,21 @@
+{
+  "name": "sensibo_measurements",
+  "version": "1.0.0",
+  "description": "Get measurements from sensibo node",
+  "main": "sensibo-measure.js",
+  "scripts": {
+    "start": "node sensibo-measure.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "David deMarco",
+  "license": "ISC",
+  "dependencies": {
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7"
+  },
+  "node-red": {
+    "nodes": {
+      "sensibo-measure": "sensibo-measure.js"
+    }
+  }
+}
