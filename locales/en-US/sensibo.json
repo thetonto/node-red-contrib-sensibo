@@ -1,0 +1,13 @@
+{
+    "sensibo": {
+        "label": {
+            "sensibo": "Credentials",
+            "register": "Register to get your API at",
+            "copy": "Copy the API key here and give it a name",
+            "key": "API Key",
+            "name": "Name",
+	    "lang": "Language",
+            "units": "Units"
+        }
+    }
+}

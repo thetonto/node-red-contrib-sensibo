@@ -1,0 +1,94 @@
+<script type="text/x-red" data-template-name="sensibo-credentials">
+    <div id="node-config-sensibo-api">
+        <div class="form-row">
+            <p style="margin-top: 10px;"><b>1.</b> <span data-i18n="sensibo.label.register"></span> <a href="https://home.sensibo.com" target="_blank" style="text-decoration:underline;">Sensibo</a>.</p>
+        </div>
+        <div class="form-row">
+            <p style="margin-top: 10px;"><b>2.</b> <span data-i18n="sensibo.label.copy"></span>:</p>
+        </div>
+        <div class="form-row">
+            <label style="margin-left: 10px; margin-right: -10px;" for="node-config-input-key_identifier"><i class="fa fa-user"></i> <span data-i18n="sensibo.label.name"></span></label>
+            <input type="text" id="node-config-input-key_identifier">
+        </div>
+        <div class="form-row">
+            <label style="margin-left: 10px; margin-right: -10px;" for="node-config-input-client_key"><i class="fa fa-key"></i> <span data-i18n="sensibo.label.key"></span></label>
+            <input type="text" id="node-config-input-client_key">
+        </div>
+    </div>
+</script>
+
+<script type="text/javascript">
+(function() {
+    RED.nodes.registerType('sensibo-credentials',{
+        category: 'config',
+        defaults: {
+            key_identifier: {value:""}
+        },
+        credentials: {
+            key_identifier: {type:"text"},
+            client_key: { type:"text"}
+        },
+        label: function() { return this.key_identifier; },
+        exportable: false
+    });
+})();
+</script>
+
+
+
+
+<script type="text/javascript">
+    RED.nodes.registerType('sensibo in',{
+        category: 'Home Automation',
+        color: '#C0DEED',
+        defaults: {
+            sensiboAPI: {type:"sensibo-credentials", required:true},
+            name: {value:""},
+            pod: {value:""},
+            polltime: {value:""}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "font-awesome/fa-snowflake-o",
+        label: function() {
+            return this.name||"sensibo";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="sensibo in">
+    <div class="form-row">
+        <label for="node-input-sensiboAPI">API Configuration</label>
+        <input type="text" id="node-input-sensiboAPI">
+    </div>
+    <div class="form-row">
+        <label for="node-input-prefix"><i class="icon-tag"></i> Pod</label>
+        <input type="text" id="node-input-pod" placeholder="Pod Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-prefix"><i class= "fa fa-clock-o"></i> Polling time</label>
+        <input type="text" id="node-input-polltime" placeholder="seconds">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="sensibo in">
+    <p>Connects to Sensibo clouds for temp/humity measurements for select pod</p>
+    <h3>Configuration</h3>
+    <dl class="message-properties">
+    <dt>An API needs to be obtained from Sensibo</dt>
+    </dl>
+    <h3>Properties</h3>
+    <dl class="message-properties">
+    <dt>pod <span class="property-type">string</span></dt>
+    <dd>pod to get the measurements from</dd>
+      <dt>polling time <span class="property-type">string</span></dt>
+    <dd>How often in seconds to poll the cloud.  Min is 60</dd>
+      
+    <dt class="optional">topic <span class="property-type">string</span></dt>
+    <dd>the MQTT topic to publish to.</dd>
+    </dl>
+</script>
