@@ -5,6 +5,7 @@
   "main": "sensibo-measure.js",
   "scripts": {
     "start": "node sensibo-measure.js",
+    "measu": "node getmeasurement.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "David deMarco",
