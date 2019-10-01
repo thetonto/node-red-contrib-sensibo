@@ -1,10 +1,10 @@
 {
-  "name": "sensibo_measurements",
+  "name": "sensibo",
   "version": "1.0.0",
   "description": "Get measurements from sensibo node",
-  "main": "sensibo-measure.js",
+  "main": "sensibo.js",
   "scripts": {
-    "start": "node sensibo-measure.js",
+    "start": "node sensibo.js",
     "measu": "node getmeasurement.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,7 +16,7 @@
   },
   "node-red": {
     "nodes": {
-      "sensibo-measure": "sensibo-measure.js"
+      "sensibo": "sensibo.js"
     }
   }
 }

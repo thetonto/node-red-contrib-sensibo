@@ -6,9 +6,12 @@
         {
             "type": "npm",
             "script": "start",
-            "problemMatcher": [
-                "$gcc"
-            ]
+            "problemMatcher": []
+        },
+        {
+            "type": "npm",
+            "script": "measu",
+            "problemMatcher": []
         }
     ]
 }

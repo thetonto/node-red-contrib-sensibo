@@ -8,7 +8,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Sensibo Program - PC",
-            "program": "${workspaceFolder}/getmeasurement.js"
+            "program": "${workspaceFolder}/get_pods.js"
         }
     ]
 }

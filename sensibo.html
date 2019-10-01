@@ -1,4 +1,16 @@
-<script type="text/x-red" data-template-name="sensibo-credentials">
+<script type="text/javascript">
+    (function() {
+        RED.nodes.registerType('sensibo-config',{
+            category: 'config',
+            defaults: {
+                senAPI: {value:""}
+            },
+            label: function() { return this.senAPI; }
+        });
+    })();
+    </script>
+
+<script type="text/x-red" data-template-name="sensibo-config">
     <div id="node-config-sensibo-api">
         <div class="form-row">
             <p style="margin-top: 10px;"><b>1.</b> <span data-i18n="sensibo.label.register"></span> <a href="https://home.sensibo.com" target="_blank" style="text-decoration:underline;">Sensibo</a>.</p>
@@ -7,51 +19,53 @@
             <p style="margin-top: 10px;"><b>2.</b> <span data-i18n="sensibo.label.copy"></span>:</p>
         </div>
         <div class="form-row">
-            <label style="margin-left: 10px; margin-right: -10px;" for="node-config-input-key_identifier"><i class="fa fa-user"></i> <span data-i18n="sensibo.label.name"></span></label>
-            <input type="text" id="node-config-input-key_identifier">
+            <label style="margin-left: 10px; margin-right: -10px;" for="node-config-input-senAPI"><i class="fa fa-key"></i> <span data-i18n="sensibo.label.key"></span></label>
+            <input type="text" id="node-config-input-senAPI">
         </div>
-        <div class="form-row">
-            <label style="margin-left: 10px; margin-right: -10px;" for="node-config-input-client_key"><i class="fa fa-key"></i> <span data-i18n="sensibo.label.key"></span></label>
-            <input type="text" id="node-config-input-client_key">
-        </div>
+
     </div>
 </script>
-
-<script type="text/javascript">
-(function() {
-    RED.nodes.registerType('sensibo-credentials',{
-        category: 'config',
-        defaults: {
-            key_identifier: {value:""}
-        },
-        credentials: {
-            key_identifier: {type:"text"},
-            client_key: { type:"text"}
-        },
-        label: function() { return this.key_identifier; },
-        exportable: false
-    });
-})();
-</script>
-
-
-
 
 <script type="text/javascript">
     RED.nodes.registerType('sensibo in',{
         category: 'Home Automation',
         color: '#C0DEED',
         defaults: {
-            sensiboAPI: {type:"sensibo-credentials", required:true},
+            sensiboAPI: {type:"sensibo-config", required:true},
             name: {value:""},
             pod: {value:""},
-            polltime: {value:""}
+            podFriendly: {value: ""},
+            polltime: {value:"0", validate:function checkvalid(v){
+                //check value is either 0, or greater than 60s.  Sure there is compressed way of doing this but it works and is clear to read
+                if (v == 0){return true;}
+                else if (v >=60){return true} 
+                else {return false}}}
         },
         inputs:1,
         outputs:1,
         icon: "font-awesome/fa-snowflake-o",
         label: function() {
-            return this.name||"sensibo";
+            return this.name||"sensibo"
+        },
+        oneditprepare: function() {
+            var currentlyFriend = this.podFriendly;
+            
+            //Add Podes from the lookup 
+            $.getJSON('sensibopods',function(data) {
+                $.each(data,function(key, value) 
+                    {
+                        $("#node-input-podFriendly").append('<option value=' + value + '>' + value + '</option>');
+                    });
+            });
+            alert ("Current Friend" + currentlyFriend);
+            $("#node-input-podFriendly").val() = currentlyFriend;
+            //$("#node-input-podFriendly[value=" + currentlyFriend+"]").prop('selected', true);
+
+        },
+        oneditsave: function(){
+            //set the pod to just the ID number off the friendly name
+            alert($("#node-input-podFriendly").val());
+            this.pod = $("#node-input-podFriendly").val().split("|")[0].trim();
         }
     });
 </script>
@@ -62,8 +76,9 @@
         <input type="text" id="node-input-sensiboAPI">
     </div>
     <div class="form-row">
-        <label for="node-input-prefix"><i class="icon-tag"></i> Pod</label>
-        <input type="text" id="node-input-pod" placeholder="Pod Name">
+        <label for="node-input-prefix"><i class="icon-tag"></i> Pod Friendly</label>
+        <select id = "node-input-podFriendly" style="width:70%">
+        </select>    
     </div>
     <div class="form-row">
         <label for="node-input-prefix"><i class= "fa fa-clock-o"></i> Polling time</label>
@@ -76,19 +91,42 @@
 </script>
 
 <script type="text/x-red" data-help-name="sensibo in">
-    <p>Connects to Sensibo clouds for temp/humity measurements for select pod</p>
+    <p>Connects to Sensibo cloud for temp/humidity/time measurements for the selected pod</p>
     <h3>Configuration</h3>
-    <dl class="message-properties">
-    <dt>An API needs to be obtained from Sensibo</dt>
-    </dl>
+    <p>An API needs to be obtained from Sensibo</p>
+    
     <h3>Properties</h3>
     <dl class="message-properties">
     <dt>pod <span class="property-type">string</span></dt>
     <dd>pod to get the measurements from</dd>
       <dt>polling time <span class="property-type">string</span></dt>
-    <dd>How often in seconds to poll the cloud.  Min is 60</dd>
-      
-    <dt class="optional">topic <span class="property-type">string</span></dt>
-    <dd>the MQTT topic to publish to.</dd>
+    <dd>How often in seconds to poll the cloud.  0 = no polling and if set a minimum of 60 seconds</dd>
+    
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload
+            <span class="property-type">string | buffer</span>
+        </dt>
+        <dd> Currently any payload will trigger a lookup of the measurements for the requested pod </dd>
+        <dt class="optional">topic <span class="property-type">string</span></dt>
+        <dd> Currently topic has no impact on the node.</dd>
     </dl>
+
+    <h3>Outputs</h3>
+    <ol class="node-ports">
+        <li>Standard output
+            <dl class="message-properties">
+                <dt>payload <span class="property-type">object</span></dt>
+                <dd>Status of lookup request to Sensibo</dd>
+                <dt>payload.x <span class="property-type">string</span></dt>
+                <dd>Measurement values as returned from Sensibo.  Tip:  turn on full object in the debug node to see all the values returned</dd>
+            </dl>
+        </li>
+        <li>Standard error
+            <dl class="message-properties">
+                <dt>payload <span class="property-type">string</span></dt>
+                <dd>Will return the error received from the Sensibo server</dd>
+            </dl>
+        </li>
+    </ol>
 </script>

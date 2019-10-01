@@ -1,1 +1,6 @@
-node_modules/node_modules/
+node_modules
+
+.DS_Store
+._.DS_Store
+.vscode/tasks.json
+.vscode/tasks.json
