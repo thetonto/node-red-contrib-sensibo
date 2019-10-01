@@ -34,6 +34,7 @@
             sensiboAPI: {type:"sensibo-config", required:true},
             name: {value:""},
             pod: {value:""},
+            podSelector: {value:""},
             podFriendly: {value: ""},
             polltime: {value:"0", validate:function checkvalid(v){
                 //check value is either 0, or greater than 60s.  Sure there is compressed way of doing this but it works and is clear to read
@@ -48,24 +49,21 @@
             return this.name||"sensibo"
         },
         oneditprepare: function() {
-            var currentlyFriend = this.podFriendly;
-            
-            //Add Podes from the lookup 
+            var currentPOD = this.podFriendly;
+            //Add Podes from the lookup
+            //#TODO - Solve the issue of selecting the when going back into the list.
             $.getJSON('sensibopods',function(data) {
                 $.each(data,function(key, value) 
                     {
-                        $("#node-input-podFriendly").append('<option value=' + value + '>' + value + '</option>');
-                    });
+                        $("#node-input-podSelector").append('<option value=' + value + '>' + value + '</option>');
+                    });   
+                //$("#node-input-podSelector").val(currentPOD);
             });
-            alert ("Current Friend" + currentlyFriend);
-            $("#node-input-podFriendly").val() = currentlyFriend;
-            //$("#node-input-podFriendly[value=" + currentlyFriend+"]").prop('selected', true);
-
         },
         oneditsave: function(){
             //set the pod to just the ID number off the friendly name
-            alert($("#node-input-podFriendly").val());
-            this.pod = $("#node-input-podFriendly").val().split("|")[0].trim();
+            this.podFriendly = $("#node-input-podSelector").find(":selected").text()
+            this.pod = this.podFriendly.split("-")[0].trim();
         }
     });
 </script>
@@ -76,8 +74,8 @@
         <input type="text" id="node-input-sensiboAPI">
     </div>
     <div class="form-row">
-        <label for="node-input-prefix"><i class="icon-tag"></i> Pod Friendly</label>
-        <select id = "node-input-podFriendly" style="width:70%">
+        <label for="node-input-prefix"><i class="icon-tag"></i>Pod</label>
+        <select id = "node-input-podSelector" style="width:70%">
         </select>    
     </div>
     <div class="form-row">

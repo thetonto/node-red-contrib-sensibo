@@ -109,7 +109,7 @@ module.exports = function(RED) {
                 rp(api_root + '/users/me/pods',options)
                     .then(function(pods){
                         //Test harness with two pods
-                        pods = {"status":"success","result":[{"id":"KN6PnUwG","room":{"name":"Living Room","icon":"lounge"}},{"id":"2ND POD","room":{"name":"Bedroom","icon":"lounge"}}]}
+                        pods = {"status":"success","result":[{"id":"KN6PnUwG","room":{"name":"Living Room","icon":"lounge"}},{"id":"2NDPOD","room":{"name":"Bedroom","icon":"lounge"}}]}
                         var results = [];
                         _.forEach(pods.result, function(pods, index) {
                             sel = pods.id + " - " + pods.room.name;
