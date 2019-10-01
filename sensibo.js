@@ -112,7 +112,7 @@ module.exports = function(RED) {
                         pods = {"status":"success","result":[{"id":"KN6PnUwG","room":{"name":"Living Room","icon":"lounge"}},{"id":"2ND POD","room":{"name":"Bedroom","icon":"lounge"}}]}
                         var results = [];
                         _.forEach(pods.result, function(pods, index) {
-                            sel = pods.id + " | " + pods.room.name;
+                            sel = pods.id + " - " + pods.room.name;
                             results.push(sel);
                         });
                             res.json(results);
