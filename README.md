@@ -8,6 +8,9 @@ First stage is a node that reads the temperature and humidity from the selected 
 
 Once the API key is setup there is automatic pod discovery.
 
+Features
+Retries on top of the Sensibo API to improve reliability
+Lookup of available PODS via room name.
 
 
 

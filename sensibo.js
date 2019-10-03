@@ -1,4 +1,5 @@
 var rp = require('request-promise-native');
+const promise_retry = require('promise-retry');
 const _ = require('lodash');
 
 const api_root = 'https://home.sensibo.com/api/v2';
@@ -7,6 +8,60 @@ const pod = 'KN6PnUwG';
 
 module.exports = function(RED) {
     
+    const request = (method, url, options) => {
+        return promise_retry({minTimeout: 5}, (retry, number) => {
+          if (number > 1) {
+            console.log('retrying...', number);
+          }
+          return rp[method](url, options).catch(retry);
+        })
+      
+        .catch( (error) => {
+          throw {
+            status: 500,
+            reason: {error, id, patch},
+          };
+        });
+      }
+
+      const get_names = (api_key) => {
+        console.log("Getting Names")
+        return request('get', api_root + '/users/me/pods', {
+          qs: {
+            apiKey: api_key,
+            fields: 'id,room',
+          },
+          json: true,
+        })
+      
+        .then( (pods) => {
+            //Test harness with two pods
+            pods = {"status":"success","result":[{"id":"KN6PnUwG","room":{"name":"Living Room","icon":"lounge"}},{"id":"2NDPOD","room":{"name":"Bedroom","icon":"lounge"}}]}
+            var results = [];
+            _.forEach(pods.result, function(pods, index) {
+                item = {}
+                item ["podID"] = pods.id;
+                item ["podName"] = pods.room.name;
+                results.push(item);
+              //results.push([pods.id, pods.room.name]);
+            });
+            return results;
+        });
+      };
+
+      const get_measurements = (api_key, podname) => {
+        console.log("Getting measurements for pod")
+        return request('get', api_root + '/pods/' + podname + '/measurements/', {
+          qs: {
+            apiKey: api_key
+          },
+          json: true,
+        })
+      
+        .then( (meas) => {
+            return meas;
+        });
+      }
      
     function sensiboMeasurement(config) {
         RED.nodes.createNode(this,config);
@@ -16,20 +71,14 @@ module.exports = function(RED) {
         
         this.on('input', function(msg) {
             this.status({fill:"green",shape:"ring",text:"polling"});
-            //Setup options to hand to Sensibo API
-            var options = {
-                json: true,
-                headers: {"content-type": "application/json"},
-                qs: {
-                    //get ths API key from the config node
-                    apiKey : node.api.sensibo_api
-                }};
-            //Set the base URL for measurements given the pod number
-           
-            var apiURI = api_root + '/pods/' + config.pod + '/measurements/';
+            
+            //Lets call our new generic routines - handy location to also test code
+            //var testcall = get_names(node.api.sensibo_api);
+            //testcall.then( (names) => console.log('Got pod names:', JSON.stringify(names)))
+
 
             //Do the call to Sensibo as a promise and prepare message
-            rp(apiURI,options)
+            get_measurements(node.api.sensibo_api, config.pod)
                 .then(function(meas){
                     console.log(JSON.stringify(meas));
                     var mytime = meas.result[0];
@@ -67,7 +116,7 @@ module.exports = function(RED) {
             done();
         });
 
-        //#TODO - Only set interval time if one has been set.
+        //Only set interval time if one has been set.
         if (config.polltime>0){
             //First check if we have already have a timer and cancel
             if (node.interval_id !== null) {
@@ -98,12 +147,13 @@ module.exports = function(RED) {
             this.sensibo_api = n.senAPI;
             console.log("Value of sensibo_ap: " + n.senAPI); 
 
-            //Create the admin server here we have access to API Key.  still need to can do the http lookup.
+            //Create the admin server here so we have access to API Key.  still need to can do the http lookup.
             RED.httpAdmin.get("/sensibopods", RED.auth.needsPermission('serial.read'), function(req,res) {
             
+
+
                 var options = {
                     json: true,
-                    headers: {"content-type": "application/json"},
                     qs: {apiKey : n.senAPI, fields: 'id, room'}
                 };
                 rp(api_root + '/users/me/pods',options)
@@ -123,7 +173,19 @@ module.exports = function(RED) {
                     })
                  }); //end of RED.http                    
                     
-
+                 RED.httpAdmin.get("/sensibopods2", RED.auth.needsPermission('serial.read'), function(req, res) {
+                    
+                    get_names(n.senAPI)
+                        .then(function(pods){
+                            
+                            console.log("got some new better: " + pods);
+                            res.json(pods);
+                         })
+                        .catch(function(err){
+                            //Error Handler
+                            console.log("failed with" + err)
+                        })
+                     }); //end of RED.http
 
     }
     

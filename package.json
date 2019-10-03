@@ -11,6 +11,8 @@
   "author": "David deMarco",
   "license": "ISC",
   "dependencies": {
+    "lodash": "^4.17.15",
+    "promise-retry": "^1.1.1",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7"
   },

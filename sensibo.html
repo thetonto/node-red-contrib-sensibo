@@ -49,21 +49,18 @@
             return this.name||"sensibo"
         },
         oneditprepare: function() {
-            var currentPOD = this.podFriendly;
-            //Add Podes from the lookup
-            //#TODO - Solve the issue of selecting the when going back into the list.
-            $.getJSON('sensibopods',function(data) {
-                $.each(data,function(key, value) 
-                    {
-                        $("#node-input-podSelector").append('<option value=' + value + '>' + value + '</option>');
-                    });   
-                //$("#node-input-podSelector").val(currentPOD);
+            var currentPOD = this.pod;
+            //Add Pods from the lookup
+            $.getJSON('sensibopods2',function(data) {
+                $.each(data, function (key, pod) {
+                    $("#node-input-podSelector").append($('<option></option>').attr('value', pod.podID).text(pod.podName));
+                })  
+                $("#node-input-podSelector").val(currentPOD);
             });
         },
         oneditsave: function(){
             //set the pod to just the ID number off the friendly name
-            this.podFriendly = $("#node-input-podSelector").find(":selected").text()
-            this.pod = this.podFriendly.split("-")[0].trim();
+            this.pod = $("#node-input-podSelector").find('option:selected').val();
         }
     });
 </script>
