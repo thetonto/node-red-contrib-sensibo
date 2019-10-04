@@ -1,7 +1,8 @@
 {
   "name": "sensibo",
-  "version": "1.0.0",
-  "description": "Get measurements from sensibo node",
+  "version": "0.1.0",
+  "description": "Communication nodes to Sensibo cloud",
+  "keywords": [ "node-red" , "sensibo"],
   "main": "sensibo.js",
   "scripts": {
     "start": "node sensibo.js",

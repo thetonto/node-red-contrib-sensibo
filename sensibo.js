@@ -1,4 +1,4 @@
-var rp = require('request-promise-native');
+const rp = require('request-promise-native');
 const promise_retry = require('promise-retry');
 const _ = require('lodash');
 
@@ -25,7 +25,6 @@ module.exports = function(RED) {
       }
 
       const get_names = (api_key) => {
-        console.log("Getting Names")
         return request('get', api_root + '/users/me/pods', {
           qs: {
             apiKey: api_key,
@@ -36,21 +35,20 @@ module.exports = function(RED) {
       
         .then( (pods) => {
             //Test harness with two pods
-            pods = {"status":"success","result":[{"id":"KN6PnUwG","room":{"name":"Living Room","icon":"lounge"}},{"id":"2NDPOD","room":{"name":"Bedroom","icon":"lounge"}}]}
+            //pods = {"status":"success","result":[{"id":"KN6PnUwG","room":{"name":"Living Room","icon":"lounge"}},{"id":"2NDPOD","room":{"name":"Bedroom","icon":"lounge"}}]}
             var results = [];
             _.forEach(pods.result, function(pods, index) {
                 item = {}
                 item ["podID"] = pods.id;
                 item ["podName"] = pods.room.name;
-                results.push(item);
-              //results.push([pods.id, pods.room.name]);
+                results.push(item);;
             });
             return results;
         });
       };
 
       const get_measurements = (api_key, podname) => {
-        console.log("Getting measurements for pod")
+        
         return request('get', api_root + '/pods/' + podname + '/measurements/', {
           qs: {
             apiKey: api_key
@@ -63,6 +61,44 @@ module.exports = function(RED) {
         });
       }
      
+      const patch_pods = (api_key, id, patch) => {
+
+        const qs = {
+          apiKey: api_key,
+          fields: 'acState'
+        };
+      
+        console.log('Patching pod:' + id + " with API key " + api_key);
+        return request('get', api_root + '/pods/' + id, {qs, json: true, timeout: 5000})
+        .then( (data) => {
+          return change_state(api_key, id, data.result.acState, patch);
+        })
+      };
+      
+      //Get the current state based on pod id.
+      const getPodState = (apiKey, id) => {
+        const qs = {
+          apiKey: apiKey,
+          fields: 'acState'
+        };
+  
+        return request('get', api_root + '/pods/' + id, {qs, json: true, timeout: config.get_timeout})
+        .then( (data) => {
+          return data;
+        })
+      };
+      
+      
+        // WARNING: This method modifies the acState object in place
+      const change_state = (apiKey, id, acState, patch) => {
+        
+        const qs = { apiKey };
+        acState = _.merge(acState, patch)
+        
+        return request('post', api_root + '/pods/' + id + '/acStates', {qs, body: {acState}, json: true});
+      };
+
+
     function sensiboMeasurement(config) {
         RED.nodes.createNode(this,config);
         //Set the node equal to to top level of this for use in functions
@@ -80,7 +116,6 @@ module.exports = function(RED) {
             //Do the call to Sensibo as a promise and prepare message
             get_measurements(node.api.sensibo_api, config.pod)
                 .then(function(meas){
-                    console.log(JSON.stringify(meas));
                     var mytime = meas.result[0];
                     msg.temperature = meas.result[0].temperature;
                     msg.humidity = meas.result[0].humidity;
@@ -88,7 +123,6 @@ module.exports = function(RED) {
                     msg.time = meas.result[0].time.time;
                     msg.payload = meas.status;
 
-                    console.log("The message is " + JSON.stringify(msg));
                     node.status({fill:"green",shape:"dot",text:"waiting"});
                     node.send(msg);
                     
@@ -99,7 +133,6 @@ module.exports = function(RED) {
                     node.status({fill:"red",shape:"dot",text:"error"});
                     node.send(msg);
                     
-
                 });
         });
 
@@ -111,7 +144,7 @@ module.exports = function(RED) {
                 console.log("Sensibo - The node and timer has been deleted")
             } else {
                 //Not sure if this is needed #TODO when would a node be restarted
-                console.log("The node has been restarted")
+                console.log("Sensibo - The node has been restarted")
             }
             done();
         });
@@ -120,11 +153,9 @@ module.exports = function(RED) {
         if (config.polltime>0){
             //First check if we have already have a timer and cancel
             if (node.interval_id !== null) {
-                console.log("Cleaning up old timer");
                 clearInterval(node.interval_id);
             }
 
-            console.log("Setting up timer for " + config.polltime)
             node.interval_id = setInterval(function(){
                 //Setup a timer if required
                 node.emit("input",{});
@@ -140,45 +171,60 @@ module.exports = function(RED) {
         } 
     }
 
+    function sensiboSend(config) {
+        RED.nodes.createNode(this,config);
+    
+        var node = this;
+        node.api = RED.nodes.getNode(config.sensiboAPI);
 
+        node.on('input', function(msg) {
+          //this.status({fill:"green",shape:"ring",text:"sending"});
+          node = this
+              //parse message
+            cmdData = {};
+            //#TODO - Map against possible values and validate
+            if (typeof msg.on != 'undefined') {
+              if (msg.on == 'true'){
+                cmdData.on = true
+              } else {
+                cmdData.on = false
+              };
+            }
+            if (typeof msg.swing != 'undefined') {
+              cmdData.swing = msg.swing;
+            }
+            if (typeof msg.mode != 'undefined') {
+              cmdData.mode = msg.mode;
+            }
+            if (typeof msg.fanlevel  != 'undefined') {
+              cmdData.fanLevel = msg.fanlevel;
+            }
+
+            console.log("Compiled Command is:" + JSON.stringify(cmdData) )
+            performPatch = patch_pods(node.api.sensibo_api,config.pod, cmdData)
+                .then((cmdData) => {
+                    msg.payload = cmdData
+                    node.status({fill:"green",shape:"dot",text:"waiting"});
+                    node.send(msg);
+                  })
+                .catch(function(err){
+                  //grab the error messasge and send as payload.
+                  msg.payload = err.message;
+                  //node.status({fill:"red",shape:"dot",text:"error"});
+                  node.send(msg);
+                  
+              });
+        });
+    }
 
     function sensiboConfig(n) {
         RED.nodes.createNode(this,n);
             this.sensibo_api = n.senAPI;
-            console.log("Value of sensibo_ap: " + n.senAPI); 
-
-            //Create the admin server here so we have access to API Key.  still need to can do the http lookup.
-            RED.httpAdmin.get("/sensibopods", RED.auth.needsPermission('serial.read'), function(req,res) {
-            
-
-
-                var options = {
-                    json: true,
-                    qs: {apiKey : n.senAPI, fields: 'id, room'}
-                };
-                rp(api_root + '/users/me/pods',options)
-                    .then(function(pods){
-                        //Test harness with two pods
-                        pods = {"status":"success","result":[{"id":"KN6PnUwG","room":{"name":"Living Room","icon":"lounge"}},{"id":"2NDPOD","room":{"name":"Bedroom","icon":"lounge"}}]}
-                        var results = [];
-                        _.forEach(pods.result, function(pods, index) {
-                            sel = pods.id + " - " + pods.room.name;
-                            results.push(sel);
-                        });
-                            res.json(results);
-                     })
-                    .catch(function(err){
-                        //Error Handler
-                        console.log("failed with" + err)
-                    })
-                 }); //end of RED.http                    
-                    
+            //Create the admin server here so we have access to API Key.         
                  RED.httpAdmin.get("/sensibopods2", RED.auth.needsPermission('serial.read'), function(req, res) {
                     
                     get_names(n.senAPI)
                         .then(function(pods){
-                            
-                            console.log("got some new better: " + pods);
                             res.json(pods);
                          })
                         .catch(function(err){
@@ -191,6 +237,7 @@ module.exports = function(RED) {
     
     RED.nodes.registerType("sensibo-config",sensiboConfig);
     RED.nodes.registerType("sensibo in",sensiboMeasurement);
+    RED.nodes.registerType("sensibo send",sensiboSend);
 
 
 }

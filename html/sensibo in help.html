@@ -1,0 +1,44 @@
+<head>
+  <link rel="stylesheet" href="C:\Users\the_d\Resilio Sync\devCloud\nodeRED.css">
+</head>
+
+
+
+<p>Connects to Sensibo cloud for temp/humidity/time measurements for the selected pod</p>
+    <h3>Configuration</h3>
+    <p>An API needs to be obtained from Sensibo</p>
+    
+    <h3>Properties</h3>
+    <dl class="message-properties">
+    <dt>pod <span class="property-type">string</span></dt>
+    <dd>pod to get the measurements from</dd>
+      <dt>polling time <span class="property-type">string</span></dt>
+    <dd>How often in seconds to poll the cloud.  0 = no polling and if set a minimum of 60 seconds</dd>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload
+            <span class="property-type">string | buffer</span>
+        </dt>
+        <dd> Currently any payload will trigger a lookup of the measurements for the requested pod </dd>
+        <dt class="optional">topic <span class="property-type">string</span></dt>
+        <dd> Currently topic has no impact on the node.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <ol class="node-ports">
+        <li>Standard output
+            <dl class="message-properties">
+                <dt>payload <span class="property-type">object</span></dt>
+                <dd>Status of lookup request to Sensibo</dd>
+                <dt>payload.x <span class="property-type">string</span></dt>
+                <dd>Measurement values as returned from Sensibo.  Tip:  turn on full object in the debug node to see all the values returned</dd>
+            </dl>
+        </li>
+        <li>Standard error
+            <dl class="message-properties">
+                <dt>payload <span class="property-type">string</span></dt>
+                <dd>Will return the error received from the Sensibo server</dd>
+            </dl>
+        </li>
+    </ol>

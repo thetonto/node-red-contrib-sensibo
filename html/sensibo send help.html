@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="C:\Users\the_d\Resilio Sync\devCloud\nodeRED.css">
+</head>
+<body>
+
+  <p>Connects to Sensibo cloud and sends updates for the selected pod</p>
+      <h3>Configuration</h3>
+      <p>An API needs to be obtained from Sensibo</p>
+
+      <h3>Properties</h3>
+      <dl class="message-properties">
+      <dt>pod <span class="property-type">selector</span></dt>
+      <dd>pod to control.</dd>
+
+      <h3>Inputs</h3>
+      <dl class="message-properties">
+          <dt>payload
+              <span class="property-type">string | buffer</span>
+          </dt>
+          <dd> Payload is not currently assigned to a function</dd>
+          <dt class="optional">msg.on<span class="property-type">binary</span></dt>
+          <dd> Turn the Airconditioning unit on and off. true/false</dd>
+          <dt class="optional">msg.swing<span class="property-type">string</span></dt>
+          <dd> Sets the swing mode.</dd>
+          <dt class="optional">msg.mode<span class="property-type">string</span></dt>
+          <dd> Set the operating mode: cool/heat/fan/dry/auto'</dd>
+          <dt class="optional">msg.fanlevel<span class="property-type">string</span></dt>
+          <dd> Set the fan level: quiet/low/medium low/medium/medium high/high/auto.  Note:  medium high/low may not be supported on all units</dd>
+
+      </dl>
+
+      <h3>Outputs</h3>
+      <ol class="node-ports">
+          <li>Standard output
+              <dl class="message-properties">
+                  <dt>payload <span class="property-type">object</span></dt>
+                  <dd>Status of the request to Sensibo</dd>
+              </dl>
+          </li>
+          <li>Standard error
+              <dl class="message-properties">
+                  <dt>payload <span class="property-type">string</span></dt>
+                  <dd>Will return the error received from the Sensibo server</dd>
+              </dl>
+          </li>
+      </ol>
+
+</body>
+</html>

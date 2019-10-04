@@ -35,7 +35,6 @@
             name: {value:""},
             pod: {value:""},
             podSelector: {value:""},
-            podFriendly: {value: ""},
             polltime: {value:"0", validate:function checkvalid(v){
                 //check value is either 0, or greater than 60s.  Sure there is compressed way of doing this but it works and is clear to read
                 if (v == 0){return true;}
@@ -85,6 +84,55 @@
     </div>
 </script>
 
+<script type="text/javascript">
+    RED.nodes.registerType('sensibo send',{
+        category: 'Home Automation',
+        color: '#C0DEED',
+        defaults: {
+            sensiboAPI: {type:"sensibo-config", required:true},
+            name: {value:""},
+            pod: {value:""},
+            podSelector: {value:""},
+        },
+        inputs:1,
+        outputs:1,
+        icon: "font-awesome/fa-snowflake-o",
+        label: function() {
+            return this.name||"sensibo out"
+        },
+        oneditprepare: function() {
+            var currentPOD = this.pod;
+            //Add Pods from the lookup
+            $.getJSON('sensibopods2',function(data) {
+                $.each(data, function (key, pod) {
+                    $("#node-input-podSelector").append($('<option></option>').attr('value', pod.podID).text(pod.podName));
+                })  
+                $("#node-input-podSelector").val(currentPOD);
+            });
+        },
+        oneditsave: function(){
+            //set the pod to just the ID number off the friendly name
+            this.pod = $("#node-input-podSelector").find('option:selected').val();
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="sensibo send">
+    <div class="form-row">
+        <label for="node-input-sensiboAPI">API Configuration</label>
+        <input type="text" id="node-input-sensiboAPI">
+    </div>
+    <div class="form-row">
+        <label for="node-input-prefix"><i class="icon-tag"></i>Pod</label>
+        <select id = "node-input-podSelector" style="width:70%">
+        </select>    
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
 <script type="text/x-red" data-help-name="sensibo in">
     <p>Connects to Sensibo cloud for temp/humidity/time measurements for the selected pod</p>
     <h3>Configuration</h3>
@@ -124,4 +172,48 @@
             </dl>
         </li>
     </ol>
+</script>
+
+<script type="text/x-red" data-help-name="sensibo send">
+    <p>Connects to Sensibo cloud and sends updates for the selected pod</p>
+      <h3>Configuration</h3>
+      <p>An API needs to be obtained from Sensibo</p>
+
+      <h3>Properties</h3>
+      <dl class="message-properties">
+      <dt>pod <span class="property-type">selector</span></dt>
+      <dd>pod to control.</dd>
+
+      <h3>Inputs</h3>
+      <dl class="message-properties">
+          <dt>payload
+              <span class="property-type">string | buffer</span>
+          </dt>
+          <dd> Payload is not currently assigned to a function</dd>
+          <dt class="optional">msg.on<span class="property-type">binary</span></dt>
+          <dd> Turn the Airconditioning unit on and off. true/false</dd>
+          <dt class="optional">msg.swing<span class="property-type">string</span></dt>
+          <dd> Sets the swing mode.</dd>
+          <dt class="optional">msg.mode<span class="property-type">string</span></dt>
+          <dd> Set the operating mode: cool/heat/fan/dry/auto'</dd>
+          <dt class="optional">msg.fanlevel<span class="property-type">string</span></dt>
+          <dd> Set the fan level: quiet/low/medium low/medium/medium high/high/auto.  Note:  medium high/low may not be supported on all units</dd>
+
+      </dl>
+
+      <h3>Outputs</h3>
+      <ol class="node-ports">
+          <li>Standard output
+              <dl class="message-properties">
+                  <dt>payload <span class="property-type">object</span></dt>
+                  <dd>Status of the request to Sensibo</dd>
+              </dl>
+          </li>
+          <li>Standard error
+              <dl class="message-properties">
+                  <dt>payload <span class="property-type">string</span></dt>
+                  <dd>Will return the error received from the Sensibo server</dd>
+              </dl>
+          </li>
+      </ol>
 </script>
