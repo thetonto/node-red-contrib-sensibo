@@ -1,5 +1,5 @@
 {
-  "name": "sensibo",
+  "name": "node-red-contrib-sensibo",
   "version": "0.1.0",
   "description": "Communication nodes to Sensibo cloud",
   "keywords": [ "node-red" , "sensibo"],
