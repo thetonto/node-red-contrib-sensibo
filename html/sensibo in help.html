@@ -11,8 +11,13 @@
     <h3>Properties</h3>
     <dl class="message-properties">
     <dt>pod <span class="property-type">string</span></dt>
-    <dd>pod to get the measurements from</dd>
-      <dt>polling time <span class="property-type">string</span></dt>
+    <dd>pod to get the measurements from.  This may take a moment to resolve from the server</dd>
+    
+    <dt>Get config only<span class="property-type">boolen</span></dt>
+    <dd>If selected the node will get the properties of the node.  Polling will be not be available.  Useful to find out the various modes that your unit supports</dd>
+ 
+    
+    <dt>polling time <span class="property-type">string</span></dt>
     <dd>How often in seconds to poll the cloud.  0 = no polling and if set a minimum of 60 seconds</dd>
 
     <h3>Inputs</h3>

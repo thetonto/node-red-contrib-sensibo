@@ -34,6 +34,7 @@
             sensiboAPI: {type:"sensibo-config", required:true},
             name: {value:""},
             pod: {value:""},
+            getconfig: {value: ""},
             podSelector: {value:""},
             polltime: {value:"0", validate:function checkvalid(v){
                 //check value is either 0, or greater than 60s.  Sure there is compressed way of doing this but it works and is clear to read
@@ -48,7 +49,8 @@
             return this.name||"sensibo"
         },
         oneditprepare: function() {
-            var currentPOD = this.pod;
+            var currentPOD = this.pod
+            
             //Add Pods from the lookup
             $.getJSON('sensibopods2',function(data) {
                 $.each(data, function (key, pod) {
@@ -56,6 +58,15 @@
                 })  
                 $("#node-input-podSelector").val(currentPOD);
             });
+            //Hide the polling option if get config is selected.
+            $('#node-input-getconfig').change(function(){
+            if(this.checked){
+                $('.setstate').hide();
+                $('#node-input-polltime').val("0");
+            }
+            else
+                $('.setstate').show();
+        });
         },
         oneditsave: function(){
             //set the pod to just the ID number off the friendly name
@@ -74,12 +85,24 @@
         <select id = "node-input-podSelector" style="width:70%">
         </select>    
     </div>
-    <div class="form-row">
+    <div class="form-row"> 
+        <label for="node-input-getconfig">
+            <i class="icon-tag"></i>
+            Get config
+        </label>
+            <input id="node-input-getconfig" name="Get Config" type="checkbox">
+    </div>
+    
+    
+    <div class="form-row setstate">
         <label for="node-input-prefix"><i class= "fa fa-clock-o"></i> Polling time</label>
         <input type="text" id="node-input-polltime" placeholder="seconds">
     </div>
     <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <label for="node-input-name">
+            <i class="icon-tag"></i>
+            Name
+        </label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
 </script>
@@ -109,6 +132,9 @@
                 })  
                 $("#node-input-podSelector").val(currentPOD);
             });
+
+        
+
         },
         oneditsave: function(){
             //set the pod to just the ID number off the friendly name
@@ -141,16 +167,17 @@
     <h3>Properties</h3>
     <dl class="message-properties">
     <dt>pod <span class="property-type">string</span></dt>
-    <dd>pod to get the measurements from</dd>
-      <dt>polling time <span class="property-type">string</span></dt>
-    <dd>How often in seconds to poll the cloud.  0 = no polling and if set a minimum of 60 seconds</dd>
+    <dd>pod to get the measurements from.  This may take a moment to resolve from the server</dd>
+    
+    <dt>Get config only<span class="property-type">boolen</span></dt>
+    <dd>If selected the node will get the properties of the node.  Polling will be not be available.  Useful to find out the various modes that your unit supports</dd>
     
     <h3>Inputs</h3>
     <dl class="message-properties">
         <dt>payload
             <span class="property-type">string | buffer</span>
         </dt>
-        <dd> Currently any payload will trigger a lookup of the measurements for the requested pod </dd>
+        <dd> Currently any incoming message will trigger a lookup of the measurements for the requested pod </dd>
         <dt class="optional">topic <span class="property-type">string</span></dt>
         <dd> Currently topic has no impact on the node.</dd>
     </dl>
@@ -198,7 +225,9 @@
           <dd> Set the operating mode: cool/heat/fan/dry/auto'</dd>
           <dt class="optional">msg.fanlevel<span class="property-type">string</span></dt>
           <dd> Set the fan level: quiet/low/medium low/medium/medium high/high/auto.  Note:  medium high/low may not be supported on all units</dd>
-
+          <dt class="optional">msg.targetTemperature<span class="property-type">number</span></dt>
+          <dd> Sets the target temperature to reach.'</dd>
+          
       </dl>
 
       <h3>Outputs</h3>
