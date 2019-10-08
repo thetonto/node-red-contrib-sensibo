@@ -60,7 +60,25 @@ module.exports = function(RED) {
             return meas;
         });
       }
-     
+      
+      const get_config = (api_key, podname) => {
+        console.log("Getting measurements for pod")
+        return request('get', api_root + '/pods/' + podname, {
+          qs: {
+            apiKey: api_key,
+            fields: "*"
+          },
+          json: true,
+        })
+      
+        .then( (meas) => {
+            return meas;
+        });
+      }
+
+
+
+
       const patch_pods = (api_key, id, patch) => {
 
         const qs = {
@@ -112,28 +130,42 @@ module.exports = function(RED) {
             //var testcall = get_names(node.api.sensibo_api);
             //testcall.then( (names) => console.log('Got pod names:', JSON.stringify(names)))
 
+            if(config.getconfig = true){
+            //Do the call to Sensibo for config oly as a promise and prepare message
+            get_config(node.api.sensibo_api, config.pod)
+              .then(function(cfg){
+                  node.status({fill:"green",shape:"dot",text:"waiting"});
+                  node.send(cfg); 
+              })
+              .catch(function(err){
+                  //grab the error messasge and send as payload.
+                  msg.payload = err.message;
+                  node.status({fill:"red",shape:"dot",text:"error"});
+                  node.send(msg); 
+              });
+            }
 
+            else {
             //Do the call to Sensibo as a promise and prepare message
-            get_measurements(node.api.sensibo_api, config.pod)
-                .then(function(meas){
-                    var mytime = meas.result[0];
-                    msg.temperature = meas.result[0].temperature;
-                    msg.humidity = meas.result[0].humidity;
-                    msg.secondsAgo = meas.result[0].time.secondsAgo;
-                    msg.time = meas.result[0].time.time;
-                    msg.payload = meas.status;
+              get_measurements(node.api.sensibo_api, config.pod)
+                  .then(function(meas){
+                      var mytime = meas.result[0];
+                      msg.temperature = meas.result[0].temperature;
+                      msg.humidity = meas.result[0].humidity;
+                      msg.secondsAgo = meas.result[0].time.secondsAgo;
+                      msg.time = meas.result[0].time.time;
+                      msg.payload = meas.status;
+                      node.status({fill:"green",shape:"dot",text:"waiting"});
+                      node.send(msg); 
+                  })
+                  .catch(function(err){
+                      //grab the error messasge and send as payload.
+                      msg.payload = err.message;
+                      node.status({fill:"red",shape:"dot",text:"error"});
+                      node.send(msg); 
+                  });
+              }
 
-                    node.status({fill:"green",shape:"dot",text:"waiting"});
-                    node.send(msg);
-                    
-                })
-                .catch(function(err){
-                    //grab the error messasge and send as payload.
-                    msg.payload = err.message;
-                    node.status({fill:"red",shape:"dot",text:"error"});
-                    node.send(msg);
-                    
-                });
         });
 
         this.on('close', function(removed, done) {
