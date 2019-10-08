@@ -62,7 +62,7 @@ module.exports = function(RED) {
       }
       
       const get_config = (api_key, podname) => {
-        console.log("Getting measurements for pod")
+        console.log("Getting configuration for pod")
         return request('get', api_root + '/pods/' + podname, {
           qs: {
             apiKey: api_key,
@@ -129,21 +129,21 @@ module.exports = function(RED) {
             //Lets call our new generic routines - handy location to also test code
             //var testcall = get_names(node.api.sensibo_api);
             //testcall.then( (names) => console.log('Got pod names:', JSON.stringify(names)))
-
-            if(config.getconfig = true){
-            //Do the call to Sensibo for config oly as a promise and prepare message
-            get_config(node.api.sensibo_api, config.pod)
-              .then(function(cfg){
-                  node.status({fill:"green",shape:"dot",text:"waiting"});
-                  node.send(cfg); 
-              })
-              .catch(function(err){
-                  //grab the error messasge and send as payload.
-                  msg.payload = err.message;
-                  node.status({fill:"red",shape:"dot",text:"error"});
-                  node.send(msg); 
-              });
-            }
+            console.log("value of getconfig = " + config.getconfig);
+            if(config.getconfig){
+              //Do the call to Sensibo for config oly as a promise and prepare message
+              get_config(node.api.sensibo_api, config.pod)
+                .then(function(cfg){
+                    node.status({fill:"green",shape:"dot",text:"waiting"});
+                    node.send(cfg); 
+                })
+                .catch(function(err){
+                    //grab the error messasge and send as payload.
+                    msg.payload = err.message;
+                    node.status({fill:"red",shape:"dot",text:"error"});
+                    node.send(msg); 
+                });
+              }
 
             else {
             //Do the call to Sensibo as a promise and prepare message
