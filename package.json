@@ -1,8 +1,11 @@
 {
   "name": "node-red-contrib-sensibo",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Communication nodes to Sensibo cloud",
-  "keywords": [ "node-red" , "sensibo"],
+  "keywords": [
+    "node-red",
+    "sensibo"
+  ],
   "main": "sensibo.js",
   "scripts": {
     "start": "node sensibo.js",
@@ -21,7 +24,6 @@
     "type": "git",
     "url": "https://github.com/thetonto/node-red-contrib-sensibo"
   },
-  
   "node-red": {
     "nodes": {
       "sensibo": "sensibo.js"
