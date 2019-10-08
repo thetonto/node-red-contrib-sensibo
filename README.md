@@ -10,16 +10,13 @@ This is a beta release of two nodes to communicate with the Sensibo Cloud.
 
 Once the API key is setup there is automatic pod discovery of available pods for configuration (no need to lookup podID's)
 
-## Installation - Manual ##
-These are instructions for testing install direct from github.  Assumes you have git already installed.
-```
-git clone https://github.com/thetonto/node-red-contrib-sensibo
-```
+## Installation ##
+
 In your node-red user directory, typically ~/.node-red, run:
 
 ```
-cd ./node.red/
-npm install <path to location of node module>
+[cd ./node.red/]
+npm install node-red-contrib-sensibo
 ```
 restart node-red
 ```

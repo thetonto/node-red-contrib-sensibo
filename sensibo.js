@@ -189,16 +189,20 @@ module.exports = function(RED) {
               } else {
                 cmdData.on = false
               };
-            }
+            };
             if (typeof msg.swing != 'undefined') {
               cmdData.swing = msg.swing;
-            }
+            };
             if (typeof msg.mode != 'undefined') {
               cmdData.mode = msg.mode;
-            }
+            };
             if (typeof msg.fanlevel  != 'undefined') {
               cmdData.fanLevel = msg.fanlevel;
-            }
+            };
+            if (typeof msg.targetTemperature  != 'undefined') {
+              cmdData.targetTemperature = msg.targetTemperature;
+            };
+
 
             console.log("Compiled Command is:" + JSON.stringify(cmdData) )
             performPatch = patch_pods(node.api.sensibo_api,config.pod, cmdData)
