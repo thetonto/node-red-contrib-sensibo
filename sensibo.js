@@ -258,15 +258,18 @@ module.exports = function(RED) {
             this.sensibo_api = n.senAPI;
             //Create the admin server here so we have access to API Key.         
                  RED.httpAdmin.get("/sensibopods2", RED.auth.needsPermission('serial.read'), function(req, res) {
-                    
+                    //get the query string
+                    const retrieveType = req.query.lkup;
+                    console.log("Type of data to retrieve is " + retrieveType);
                     get_names(n.senAPI)
                         .then(function(pods){
+                            console.log("Sending back pods " + pods)
                             res.json(pods);
                          })
                         .catch(function(err){
                             //Error Handler
                             console.log("failed with" + err)
-                        })
+                        });
                      }); //end of RED.http
 
     }
