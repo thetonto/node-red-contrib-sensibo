@@ -151,7 +151,6 @@
                     }).autocomplete("search","");
                 });
             });
-
         },
         oneditsave: function(){
             //set the pod to just the ID number off the friendly name
@@ -166,9 +165,9 @@
         <input type="text" id="node-input-sensiboAPI">
     </div>
     <div class="form-row">
-        <label for="node-input-prefix"><i class="icon-tag"></i>Pod</label>
-        <select id = "node-input-podSelector" style="width:70%">
-        </select>    
+        <label for="node-input-pod"><i class="fa fa-superpowers"></i> <span data-i18n="sensibo.label.podname"></span></label>
+        <input type="text" id="node-input-pod" style="width:60%;">
+        <a id="node-lookup-pod" class="btn"><i id="node-lookup-pod-icon" class="fa fa-search"></i></a>
     </div>
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>

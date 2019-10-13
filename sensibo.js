@@ -139,13 +139,24 @@ module.exports = function(RED) {
               get_config(node.api.sensibo_api, config.pod)
                 .then(function(cfg){
                     node.status({fill:"green",shape:"dot",text:"waiting"});
-                    node.send(cfg);                    
+                    node.send(cfg);
+                    // Check done exists (1.0+)
+                    if (done) {
+                      done();
+                    }                                     
                 }) 
                 .catch(function(err){
                     //grab the error messasge and send as payload.
                     msg.payload = err.message;
                     node.status({fill:"red",shape:"dot",text:"error"});
                     node.send(msg);
+                    if (done) {
+                      // Use done if defined (1.0+)
+                      done(err)
+                      } else {
+                      // Fallback to node.error (pre-1.0)
+                      node.error(err, msg);
+                    }
                 });
               }
 
@@ -161,6 +172,10 @@ module.exports = function(RED) {
                       msg.payload = meas.status;
                       node.status({fill:"green",shape:"dot",text:"waiting"});
                       node.send(msg);
+                      // Check done exists (1.0+)
+                      if (done) {
+                        done();
+                      }
                   })
                   .catch(function(err){
                       //grab the error messasge and send as payload.
@@ -220,7 +235,7 @@ module.exports = function(RED) {
         var node = this;
         node.api = RED.nodes.getNode(config.sensiboAPI);
 
-        node.on('input', function(msg, done, error) {
+        node.on('input', function(msg, send, done) {
             // If this is pre-1.0, 'send' will be undefined, so fallback to node.send
             send = send || function() { node.send.apply(node,arguments) }
           
@@ -256,6 +271,10 @@ module.exports = function(RED) {
                     msg.payload = cmdData
                     node.status({fill:"green",shape:"dot",text:"waiting"});
                     node.send(msg);
+                      // Check done exists (1.0+)
+                      if (done) {
+                        done();
+                      }
                     })
 
                 .catch(function(err){
