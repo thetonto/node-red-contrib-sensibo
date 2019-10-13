@@ -35,7 +35,7 @@ module.exports = function(RED) {
       
         .then( (pods) => {
             //Test harness with two pods
-            pods = {"status":"success","result":[{"id":"KN6PnUwG","room":{"name":"Living Room","icon":"lounge"}},{"id":"2NDPOD","room":{"name":"Bedroom","icon":"lounge"}}]}
+            //pods = {"status":"success","result":[{"id":"KN6PnUwG","room":{"name":"Living Room","icon":"lounge"}},{"id":"2NDPOD","room":{"name":"Bedroom","icon":"lounge"}}]}
             var results = [];
             _.forEach(pods.result, function(pods, index) {
                 item = {}
