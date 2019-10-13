@@ -139,7 +139,7 @@ module.exports = function(RED) {
               get_config(node.api.sensibo_api, config.pod)
                 .then(function(cfg){
                     node.status({fill:"green",shape:"dot",text:"waiting"});
-                    node.send(cfg);
+                    send(cfg);
                     // Check done exists (1.0+)
                     if (done) {
                       done();
@@ -149,7 +149,7 @@ module.exports = function(RED) {
                     //grab the error messasge and send as payload.
                     msg.payload = err.message;
                     node.status({fill:"red",shape:"dot",text:"error"});
-                    node.send(msg);
+                    send(msg);
                     if (done) {
                       // Use done if defined (1.0+)
                       done(err)
@@ -171,7 +171,7 @@ module.exports = function(RED) {
                       msg.time = meas.result[0].time.time;
                       msg.payload = meas.status;
                       node.status({fill:"green",shape:"dot",text:"waiting"});
-                      node.send(msg);
+                      send(msg);
                       // Check done exists (1.0+)
                       if (done) {
                         done();
@@ -181,7 +181,7 @@ module.exports = function(RED) {
                       //grab the error messasge and send as payload.
                       msg.payload = err.message;
                       node.status({fill:"red",shape:"dot",text:"error"});
-                      node.send(msg); 
+                      send(msg); 
                       if (done) {
                         // Use done if defined (1.0+)
                         done(err)
@@ -270,7 +270,7 @@ module.exports = function(RED) {
                 .then((cmdData) => {
                     msg.payload = cmdData
                     node.status({fill:"green",shape:"dot",text:"waiting"});
-                    node.send(msg);
+                    send(msg);
                       // Check done exists (1.0+)
                       if (done) {
                         done();
@@ -291,7 +291,7 @@ module.exports = function(RED) {
                   
                   
                   node.status({fill:"red",shape:"dot",text:"error"});
-                  node.send(msg);
+                  send(msg);
                   
               });
         });
