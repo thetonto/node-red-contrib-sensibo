@@ -35,12 +35,14 @@ module.exports = function(RED) {
       
         .then( (pods) => {
             //Test harness with two pods
-            //pods = {"status":"success","result":[{"id":"KN6PnUwG","room":{"name":"Living Room","icon":"lounge"}},{"id":"2NDPOD","room":{"name":"Bedroom","icon":"lounge"}}]}
+            pods = {"status":"success","result":[{"id":"KN6PnUwG","room":{"name":"Living Room","icon":"lounge"}},{"id":"2NDPOD","room":{"name":"Bedroom","icon":"lounge"}}]}
             var results = [];
             _.forEach(pods.result, function(pods, index) {
                 item = {}
-                item ["podID"] = pods.id;
-                item ["podName"] = pods.room.name;
+                item ["value"] = pods.id;
+                item ["label"] = pods.room.name;
+                //item ["podID"] = pods.id;
+                //item ["podName"] = pods.room.name;
                 results.push(item);;
             });
             return results;
@@ -123,7 +125,9 @@ module.exports = function(RED) {
         var node = this;
         node.api = RED.nodes.getNode(config.sensiboAPI);      
         
-        this.on('input', function(msg) {
+        this.on('input', function(msg, send, done) {
+            // If this is pre-1.0, 'send' will be undefined, so fallback to node.send
+            send = send || function() { node.send.apply(node,arguments) }
             this.status({fill:"green",shape:"ring",text:"polling"});
             
             //Lets call our new generic routines - handy location to also test code
@@ -135,13 +139,13 @@ module.exports = function(RED) {
               get_config(node.api.sensibo_api, config.pod)
                 .then(function(cfg){
                     node.status({fill:"green",shape:"dot",text:"waiting"});
-                    node.send(cfg); 
-                })
+                    node.send(cfg);                    
+                }) 
                 .catch(function(err){
                     //grab the error messasge and send as payload.
                     msg.payload = err.message;
                     node.status({fill:"red",shape:"dot",text:"error"});
-                    node.send(msg); 
+                    node.send(msg);
                 });
               }
 
@@ -156,13 +160,20 @@ module.exports = function(RED) {
                       msg.time = meas.result[0].time.time;
                       msg.payload = meas.status;
                       node.status({fill:"green",shape:"dot",text:"waiting"});
-                      node.send(msg); 
+                      node.send(msg);
                   })
                   .catch(function(err){
                       //grab the error messasge and send as payload.
                       msg.payload = err.message;
                       node.status({fill:"red",shape:"dot",text:"error"});
                       node.send(msg); 
+                      if (done) {
+                        // Use done if defined (1.0+)
+                        done(err)
+                        } else {
+                        // Fallback to node.error (pre-1.0)
+                        node.error(err, msg);
+                      }
                   });
               }
 
@@ -209,9 +220,12 @@ module.exports = function(RED) {
         var node = this;
         node.api = RED.nodes.getNode(config.sensiboAPI);
 
-        node.on('input', function(msg) {
-          //this.status({fill:"green",shape:"ring",text:"sending"});
-          node = this
+        node.on('input', function(msg, done, error) {
+            // If this is pre-1.0, 'send' will be undefined, so fallback to node.send
+            send = send || function() { node.send.apply(node,arguments) }
+          
+            this.status({fill:"green",shape:"ring",text:"sending"});
+            node = this
               //parse message
             cmdData = {};
             //#TODO - Map against possible values and validate
@@ -242,11 +256,22 @@ module.exports = function(RED) {
                     msg.payload = cmdData
                     node.status({fill:"green",shape:"dot",text:"waiting"});
                     node.send(msg);
-                  })
+                    })
+
                 .catch(function(err){
                   //grab the error messasge and send as payload.
                   msg.payload = err.message;
-                  //node.status({fill:"red",shape:"dot",text:"error"});
+                              // Report back the error
+                  if (done) {
+                    // Use done if defined (1.0+)
+                    done(err)
+                    } else {
+                    // Fallback to node.error (pre-1.0)
+                    node.error(err, msg);
+                  }
+                  
+                  
+                  node.status({fill:"red",shape:"dot",text:"error"});
                   node.send(msg);
                   
               });
@@ -257,7 +282,7 @@ module.exports = function(RED) {
         RED.nodes.createNode(this,n);
             this.sensibo_api = n.senAPI;
             //Create the admin server here so we have access to API Key.         
-                 RED.httpAdmin.get("/sensibopods2", RED.auth.needsPermission('serial.read'), function(req, res) {
+                 RED.httpAdmin.get("/sensibo", RED.auth.needsPermission('serial.read'), function(req, res) {
                     //get the query string
                     const retrieveType = req.query.lkup;
                     console.log("Type of data to retrieve is " + retrieveType);

@@ -6,6 +6,8 @@
             "copy": "Copy the API key here and give it a name",
             "key": "API Key",
             "name": "Name",
+            "podname" : "POD",
+            
 	    "lang": "Language",
             "units": "Units"
         }

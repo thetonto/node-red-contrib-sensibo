@@ -28,5 +28,8 @@
     "nodes": {
       "sensibo": "sensibo.js"
     }
+  },
+  "devDependencies": {
+    "jquery": "^3.4.1"
   }
 }

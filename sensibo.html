@@ -37,7 +37,6 @@
             name: {value:""},
             pod: {value:""},
             getconfig: {value: ""},
-            podSelector: {value:""},
             polltime: {value:"0", validate:function checkvalid(v){
                 //check value is either 0, or greater than 60s.  Sure there is compressed way of doing this but it works and is clear to read
                 if (v == 0){return true;}
@@ -50,16 +49,24 @@
         label: function() {
             return this.name||"sensibo"
         },
-        oneditprepare: function() {
-            var currentPOD = this.pod
-            
+        oneditprepare: function() {         
             //Add Pods from the lookup
-            $.getJSON('sensibopods2?lkup=node',function(data) {
-                $.each(data, function (key, pod) {
-                    $("#node-input-podSelector").append($('<option></option>').attr('value', pod.podID).text(pod.podName));
-                })  
-                $("#node-input-podSelector").val(currentPOD);
+            $("#node-lookup-pod").click(function() {
+                $("#node-lookup-pod").addClass('disabled');
+                $.getJSON('sensibo?lkup=node',function(data) {
+                    $("#node-lookup-pod").removeClass('disabled');
+                    $("#node-input-pod").autocomplete({
+                        source:data,
+                        minLength:0,
+                        close: function( event, ui ) {
+                            $("#node-input-pod").autocomplete( "destroy" );
+                            //alert("finished - should now get the configuration")
+                        }
+                    }).autocomplete("search","");
+                });
             });
+
+
 
             //Hide the polling option if get config is selected.
             $('#node-input-getconfig').change(function(){
@@ -73,26 +80,21 @@
         },
         oneditsave: function(){
             //set the pod to just the ID number off the friendly name
-            this.pod = $("#node-input-podSelector").find('option:selected').val();
+            //this.pod = $("#node-input-podSelector").find('option:selected').val();
         }
     });
 </script>
 
 <script type="text/x-red" data-template-name="sensibo in">
     <div class="form-row">
-        <label for="node-input-sensiboAPI">API Configuration</label>
+        <label for="node-input-sensiboAPI"><span data-i18n="sensibo.label.key"></span></label>
         <input type="text" id="node-input-sensiboAPI">
-    </div>
-    <div class="form-row">
-        <label for="node-input-prefix"><i class="icon-tag"></i>Pod</label>
-        <select id = "node-input-podSelector" style="width:60%"> 
-        </select><a id="node-config-lookup-pod" class="btn"><i id="node-config-lookup-pod" class="fa fa-search"></i></a>
     </div>
 
     <div class="form-row">
-        <label for="node-config-input-serialport"><i class="fa fa-random"></i> <span data-i18n="serial.label.serialport"></span></label>
-        <input type="text" id="node-config-input-serialport" style="width:60%;" data-i18n="[placeholder]serial.placeholder.serialport">
-        <a id="node-config-lookup-serial" class="btn"><i id="node-config-lookup-serial-icon" class="fa fa-search"></i></a>
+        <label for="node-input-pod"><i class="fa fa-superpowers"></i> <span data-i18n="sensibo.label.podname"></span></label>
+        <input type="text" id="node-input-pod" style="width:60%;">
+        <a id="node-lookup-pod" class="btn"><i id="node-lookup-pod-icon" class="fa fa-search"></i></a>
     </div>
 
     <div class="form-row"> 
@@ -133,22 +135,27 @@
         label: function() {
             return this.name||"sensibo out"
         },
-        oneditprepare: function() {
-            var currentPOD = this.pod;
+        oneditprepare: function() {         
             //Add Pods from the lookup
-            $.getJSON('sensibopods2',function(data) {
-                $.each(data, function (key, pod) {
-                    $("#node-input-podSelector").append($('<option></option>').attr('value', pod.podID).text(pod.podName));
-                })  
-                $("#node-input-podSelector").val(currentPOD);
+            $("#node-lookup-pod").click(function() {
+                $("#node-lookup-pod").addClass('disabled');
+                $.getJSON('sensibo?lkup=node',function(data) {
+                    $("#node-lookup-pod").removeClass('disabled');
+                    $("#node-input-pod").autocomplete({
+                        source:data,
+                        minLength:0,
+                        close: function( event, ui ) {
+                            $("#node-input-pod").autocomplete( "destroy" );
+                            //alert("finished - should now get the configuration")
+                        }
+                    }).autocomplete("search","");
+                });
             });
-
-        
 
         },
         oneditsave: function(){
             //set the pod to just the ID number off the friendly name
-            this.pod = $("#node-input-podSelector").find('option:selected').val();
+            //this.pod = $("#node-input-podSelector").find('option:selected').val();
         }
     });
 </script>
