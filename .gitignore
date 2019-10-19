@@ -7,3 +7,4 @@ working/
 html/
 sensibo.code-workspace
 html/sensibo in help.html
+test/credentials.js

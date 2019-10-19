@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node sensibo.js",
     "measu": "node getmeasurement.js",
-    "test": "mocha \"test/**/*_spec.js\""
+    "test": "mocha --exit \"test/**/*_spec.js\""
   },
   "author": "David deMarco",
   "license": "ISC",

@@ -1,4 +1,5 @@
 /* eslint-disable */
+var config = require('./credentials')
 this.flow = [
 	{
 		"id": "n1",
@@ -6,7 +7,7 @@ this.flow = [
 		"z": "c612c71c.4a4f98",
 		"sensiboAPI": "fcfae818.98aca8",
 		"name": "sensibo in",
-		"pod": "KN6PnUwG",
+		"pod": config.pod,
 		"getconfig": "",
 		"polltime": "",
 		"x": 360,
@@ -21,7 +22,7 @@ this.flow = [
 		"id": "fcfae818.98aca8",
 		"type": "sensibo-config",
 		"z": "",
-		"senAPI": "k3UFQF3fUCMaCv8VDmcoYzGBT1tglj"
+		"senAPI": config.api
 	},
 	{ 
 		id: 'nh', 
@@ -34,14 +35,14 @@ this.timerflow = [
 		"type": "sensibo in",
 		"sensiboAPI": "fcfae818.98aca8",
 		"name": "sensibo in",
-		"pod": "KN6PnUwG",
+		"pod": config.pod,
 		"polltime": "10",
 	},
 	{
 		"id": "fcfae818.98aca8",
 		"type": "sensibo-config",
 		"z": "",
-		"senAPI": "k3UFQF3fUCMaCv8VDmcoYzGBT1tglj"
+		"senAPI": config.api
 	}
 ]
 
