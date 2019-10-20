@@ -58,7 +58,6 @@ module.exports = function (RED) {
   }
 
   const getConfig = (key, podname) => {
-    console.log('Getting configuration for pod')
     return request('get', apiRoot + '/pods/' + podname, {
       qs: {
         apiKey: key,
@@ -93,7 +92,7 @@ module.exports = function (RED) {
     return request('post', apiRoot + '/pods/' + id + '/acStates', { qs, body: { acState }, json: true })
   }
 
-  function sensiboMeasurement (config) {
+  function sensiboGet (config) {
     RED.nodes.createNode(this, config)
     // Set the node equal to to top level of this for use in functions
     var node = this
@@ -107,7 +106,7 @@ module.exports = function (RED) {
       // Lets call our new generic routines - handy location to also test code
       // var testcall = getNames(node.api.sensibo_api);
       // testcall.then( (names) => console.log('Got pod names:', JSON.stringify(names)))
-      console.log('value of getconfig = ' + config.getconfig)
+
       if (config.getconfig) {
         // Do the call to Sensibo for config oly as a promise and prepare message
         getConfig(node.api.sensibo_api, config.pod)
@@ -169,10 +168,11 @@ module.exports = function (RED) {
         if (node.interval_id !== null) {
           clearInterval(node.interval_id)
         }
+
         console.log('Sensibo - The node and timer has been deleted')
       } else {
         // Not sure if this is needed #TODO when would a node be restarted
-        console.log('Sensibo - The node has been restarted')
+        // console.log('Sensibo - The node has been restarted')
       }
       done()
     })
@@ -183,11 +183,11 @@ module.exports = function (RED) {
       if (node.interval_id !== null) {
         clearInterval(node.interval_id)
       }
-
+      // send trace message for testing framework
+      node.trace('creating timer')
       node.interval_id = setInterval(function () {
         // Setup a timer if required
         node.emit('input', {})
-        console.log('Entered Timer')
       }
       // Set the timer from the configuration page and convert to millisecond
       , config.polltime * 1000)
@@ -234,7 +234,7 @@ module.exports = function (RED) {
         cmdData.targetTemperature = msg.targetTemperature
       };
 
-      console.log('Compiled Command is:' + JSON.stringify(cmdData))
+      // console.log('Compiled Command is:' + JSON.stringify(cmdData))
       const performPatch = patchPods(node.api.sensibo_api, config.pod, cmdData)
         .then((cmdData) => {
           msg.payload = cmdData
@@ -248,7 +248,6 @@ module.exports = function (RED) {
 
         .catch(function (err) {
           // grab the error messasge and send as payload.
-          console.log('Error Message fired')
           msg.payload = err.message
           // Report back the error
           if (done) {
@@ -281,12 +280,12 @@ module.exports = function (RED) {
         })
         .catch(function (err) {
           // Error Handler
-          console.log('failed with' + err)
+          console.log('Sensibo Admin lookup failed with' + err)
         })
     }) // end of RED.http
   }
 
   RED.nodes.registerType('sensibo-config', sensiboConfig)
-  RED.nodes.registerType('sensibo in', sensiboMeasurement)
+  RED.nodes.registerType('sensibo in', sensiboGet)
   RED.nodes.registerType('sensibo send', sensiboSend)
 }
