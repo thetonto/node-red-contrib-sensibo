@@ -20,7 +20,7 @@ describe('sensibo Node', function () {
     helper.stopServer(done)
   })
 
-  it('should be loaded', function (done) {
+  it('send should be loaded', function (done) {
     helper.load(sensibo, flow, function () {
       var n1 = helper.getNode('n1')
       n1.should.have.property('name', 'sensibo out')
@@ -28,7 +28,7 @@ describe('sensibo Node', function () {
     })
   })
 
-  it('should have an API Property', function (done) {
+  it('send should have an API Property', function (done) {
     helper.load(sensibo, flow, function () {
       var n1 = helper.getNode('n1')
       n1.api.should.have.property('sensibo_api', 'k3UFQF3fUCMaCv8VDmcoYzGBT1tglj')
@@ -47,6 +47,19 @@ describe('sensibo Node', function () {
       })
       console.log('the node is ' + JSON.stringify(nh))
       n1.receive({ targetTemperature: 23 })
+    })
+  })
+
+  it('should change mode', function (done) {
+    helper.load(sensibo, flow, function () {
+      var n1 = helper.getNode('n1')
+      var nh = helper.getNode('nh')
+      nh.on('input', function (msg) {
+        console.log('mode Message back ' + msg.payload.status)
+        msg.payload.should.have.property('status', 'success')
+        done()
+      })
+      n1.receive({ mode: 'auto' })
     })
   })
 })
