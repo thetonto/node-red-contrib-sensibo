@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node sensibo.js",
     "measu": "node getmeasurement.js",
-    "test": "echo \"No test specified\""
+    "test": "mocha --exit \"test/**/*_spec.js\""
   },
   "author": "David deMarco",
   "license": "ISC",
@@ -30,6 +30,15 @@
     }
   },
   "devDependencies": {
-    "jquery": "^3.4.1"
+    "eslint": "^6.5.1",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "mocha": "^6.2.1",
+    "node-red": "^1.0.1",
+    "node-red-node-test-helper": "^0.2.3"
   }
 }
