@@ -248,6 +248,7 @@ module.exports = function (RED) {
 
         .catch(function (err) {
           // grab the error messasge and send as payload.
+          console.log('Error Message fired')
           msg.payload = err.message
           // Report back the error
           if (done) {
