@@ -104,6 +104,7 @@ module.exports = function (RED) {
       // Lets call our new generic routines - handy location to also test code
       // var testcall = getNames(node.api.sensibo_api);
       // testcall.then( (names) => console.log('Got pod names:', JSON.stringify(names)))
+
       console.log('Pod Name = ' + config.pod)
       console.log('Incoming Message = ' + JSON.stringify(msg))
       if (config.getconfig) {
@@ -251,7 +252,6 @@ module.exports = function (RED) {
 
         .catch(function (err) {
           // grab the error messasge and send as payload.
-          console.log('Error Message fired')
           msg.payload = err.message
           // Report back the error
           node.status({ fill: 'red', shape: 'dot', text: 'error' })
