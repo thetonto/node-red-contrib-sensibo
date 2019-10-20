@@ -36,6 +36,8 @@ module.exports = function (RED) {
           const item = {}
           item.value = pods.id
           item.label = pods.room.name
+          // item ["podID"] = pods.id;
+          // item ["podName"] = pods.room.name;
           results.push(item)
         })
         return results
@@ -51,12 +53,12 @@ module.exports = function (RED) {
     })
 
       .then((meas) => {
-        console.log('Got measurements: ' + JSON.stringify(meas))
         return meas
       })
   }
 
   const getConfig = (key, podname) => {
+    console.log('Getting configuration for pod')
     return request('get', apiRoot + '/pods/' + podname, {
       qs: {
         apiKey: key,
@@ -87,10 +89,11 @@ module.exports = function (RED) {
   const changeState = (apiKey, id, acState, patch) => {
     const qs = { apiKey }
     acState = _.merge(acState, patch)
+
     return request('post', apiRoot + '/pods/' + id + '/acStates', { qs, body: { acState }, json: true })
   }
 
-  function sensiboIn (config) {
+  function sensiboMeasurement (config) {
     RED.nodes.createNode(this, config)
     // Set the node equal to to top level of this for use in functions
     var node = this
@@ -104,9 +107,7 @@ module.exports = function (RED) {
       // Lets call our new generic routines - handy location to also test code
       // var testcall = getNames(node.api.sensibo_api);
       // testcall.then( (names) => console.log('Got pod names:', JSON.stringify(names)))
-
-      console.log('Pod Name = ' + config.pod)
-      console.log('Incoming Message = ' + JSON.stringify(msg))
+      console.log('value of getconfig = ' + config.getconfig)
       if (config.getconfig) {
         // Do the call to Sensibo for config oly as a promise and prepare message
         getConfig(node.api.sensibo_api, config.pod)
@@ -171,7 +172,7 @@ module.exports = function (RED) {
         console.log('Sensibo - The node and timer has been deleted')
       } else {
         // Not sure if this is needed #TODO when would a node be restarted
-        // console.log('Sensibo - The node has been restarted')
+        console.log('Sensibo - The node has been restarted')
       }
       done()
     })
@@ -179,8 +180,6 @@ module.exports = function (RED) {
     // Only set interval time if one has been set.
     if (config.polltime > 0) {
       // First check if we have already have a timer and cancel
-      node.trace('creating timer')
-      console.log('creating timer')
       if (node.interval_id !== null) {
         clearInterval(node.interval_id)
       }
@@ -188,7 +187,6 @@ module.exports = function (RED) {
       node.interval_id = setInterval(function () {
         // Setup a timer if required
         node.emit('input', {})
-        node.trace('input requested via timer')
         console.log('Entered Timer')
       }
       // Set the timer from the configuration page and convert to millisecond
@@ -211,7 +209,6 @@ module.exports = function (RED) {
       // If this is pre-1.0, 'send' will be undefined, so fallback to node.send
       send = send || function () { node.send.apply(node, arguments) }
 
-      console.log('Incoming Message = ' + JSON.stringify(msg))
       this.status({ fill: 'green', shape: 'ring', text: 'sending' })
       node = this
       // parse message
@@ -238,8 +235,7 @@ module.exports = function (RED) {
       };
 
       console.log('Compiled Command is:' + JSON.stringify(cmdData))
-      // Do the work now.
-      patchPods(node.api.sensibo_api, config.pod, cmdData)
+      const performPatch = patchPods(node.api.sensibo_api, config.pod, cmdData)
         .then((cmdData) => {
           msg.payload = cmdData
           node.status({ fill: 'green', shape: 'dot', text: 'waiting' })
@@ -254,8 +250,6 @@ module.exports = function (RED) {
           // grab the error messasge and send as payload.
           msg.payload = err.message
           // Report back the error
-          node.status({ fill: 'red', shape: 'dot', text: 'error' })
-          send(msg)
           if (done) {
             // Use done if defined (1.0+)
             done(err)
@@ -263,7 +257,11 @@ module.exports = function (RED) {
             // Fallback to node.error (pre-1.0)
             node.error(err, msg)
           }
+
+          node.status({ fill: 'red', shape: 'dot', text: 'error' })
+          send(msg)
         })
+      performPatch()
     })
   }
 
@@ -288,6 +286,6 @@ module.exports = function (RED) {
   }
 
   RED.nodes.registerType('sensibo-config', sensiboConfig)
-  RED.nodes.registerType('sensibo in', sensiboIn)
+  RED.nodes.registerType('sensibo in', sensiboMeasurement)
   RED.nodes.registerType('sensibo send', sensiboSend)
 }
