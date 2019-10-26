@@ -22,6 +22,10 @@ restart node-red
 ```
 sudo systemctl restart nodered.service
 ```
+## Support / Issues ##
+
+Please log any issues, feature reqeusts on Github.  All feedback is appreciated.  
+
 ## Features ##
 
 - Retries on top of the Sensibo API to improve reliability
