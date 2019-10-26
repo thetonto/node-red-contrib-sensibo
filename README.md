@@ -32,7 +32,7 @@ Please log any issues, feature reqeusts on Github.  All feedback is appreciated.
 - Lookup of available PODS via room name.
 - User defined polling of temperature and humidity from cloud (min 60 seconds)
 - Option to retrieve all device information
--EHelp pages have been populated
+- EHelp pages have been populated
 
 ## Device Information ##
 While there are many common options each device type has additional supported options.  To find the full range of option you can configure the Sensibo mode to retrieve the full configuration in the msg.payload

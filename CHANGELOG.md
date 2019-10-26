@@ -14,3 +14,8 @@ Support for retreiving full device informationn so you can see all available fun
 
 - Updated the pod selection system to be similar the serial node with refresh button.  This also makes initial setup after entering the API key easier to use.
 - Node V1 compliant with send msg and done
+
+**V 0.3.2**
+- New testing scripts created using Node Red Helper Script
+- Minor bug fixes found from the testing scripts
+- Linting of code and various clean ups basedd off that
