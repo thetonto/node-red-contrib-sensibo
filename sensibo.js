@@ -235,10 +235,11 @@ module.exports = function (RED) {
       };
 
       // console.log('Compiled Command is:' + JSON.stringify(cmdData))
-      const performPatch = patchPods(node.api.sensibo_api, config.pod, cmdData)
+
+      var performPatch = patchPods(node.api.sensibo_api, config.pod, cmdData)
         .then((cmdData) => {
           msg.payload = cmdData
-          node.status({ fill: 'green', shape: 'dot', text: 'waiting' })
+          node.status({ fill: 'green', shape: 'dot', text: 'connected' })
           send(msg)
           // Check done exists (1.0+)
           if (done) {
@@ -261,7 +262,6 @@ module.exports = function (RED) {
           node.status({ fill: 'red', shape: 'dot', text: 'error' })
           send(msg)
         })
-      performPatch()
     })
   }
 

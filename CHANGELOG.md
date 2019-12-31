@@ -19,3 +19,7 @@ Support for retreiving full device informationn so you can see all available fun
 - New testing scripts created using Node Red Helper Script
 - Minor bug fixes found from the testing scripts
 - Linting of code and various clean ups basedd off that
+
+**V 0.3.3**
+- Linting introduced a type error on the patch function.  Function worked but would report an error
+  
