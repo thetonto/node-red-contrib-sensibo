@@ -20,21 +20,6 @@ module.exports = function (RED) {
       })
   }
 
-  const requestNew = (url, options) => {
-    console.log('Calling new reqeusts module')
-    console.log(url)
-    return promiseRetry({ minTimeout: 5 }, (retry, number) => {
-      if (number > 1) {
-        console.log('retrying...', number)
-      }
-      return fetch(url, options).catch(retry)
-    })
-
-      .catch((error) => {
-        throw error
-      })
-  }
-
   const getNames = (key) => {
     return requestOld('get', apiRoot + '/users/me/pods', {
       qs: {
@@ -60,30 +45,6 @@ module.exports = function (RED) {
       })
   }
 
-  const getMeasurementsNew = (key, podname) => {
-    console.log("Gettting Measurements New Call")
-    var apiURI = new URL(apiRoot + '/pods/' + podname + '/measurements/')
-    apiURI.searchParams.append('apiKey', key)
-    var options = {
-      method: 'GET',
-      headers: {"content-type": "application/json",},        // Set to JSON
-      }
-    return fetch(apiURI, options)
-  }
-
-  const getMeasurements = (key, podname) => {
-    console.log("Gettting Measurements Old Call")
-    return requestOld('get', apiRoot + '/pods/' + podname + '/measurements/', {
-      qs: {
-        apiKey: key
-      },
-      json: true
-    })
-
-      .then((meas) => {
-        return meas
-      })
-  }
 
 
   const getConfig = (key, podname) => {
@@ -310,17 +271,24 @@ module.exports = function (RED) {
     // Create the admin server here so we have access to API Key.
     RED.httpAdmin.get('/sensibo', RED.auth.needsPermission('serial.read'), function (req, res) {
       // get the query string
-      const retrieveType = req.query.lkup
-      console.log('Type of data to retrieve is ' + retrieveType)
-      getNames(n.senAPI)
-        .then(function (pods) {
-          console.log('Sending back pods ' + pods)
-          res.json(pods)
-        })
-        .catch(function (err) {
-          // Error Handler
-          console.log('Sensibo Admin lookup failed with' + err)
-        })
+      const retrieveType = req.query.lkup  // 20210428 we are not using this at the momment so leave it be.  The client is calling this but we are ignoring it.  Might use later
+      // console.log('Type of data to retrieve is ' + retrieveType)
+      var apiURI = new URL(apiRoot + '/users/me/pods')
+      apiURI.searchParams.append('apiKey', n.senAPI)    //set the key directly to node-fetch
+      var options = {
+        method: 'GET',
+        headers: {"accept": "application/json",},        // Set to JSON
+        }
+      fetch(apiURI, options)
+      .then(res => res.json())
+      .then(function (pods) {
+        console.log('Sending back pods ' + JSON.stringify(pods))
+        res.json(pods)
+      })
+      .catch(function (err) {
+        // Error Handler
+        console.log('Sensibo Admin lookup failed with' + err)
+      })
     }) // end of RED.http
   }
 
