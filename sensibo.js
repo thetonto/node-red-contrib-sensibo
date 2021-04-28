@@ -1,12 +1,13 @@
-
 const rp = require('request-promise-native')
 const promiseRetry = require('promise-retry')
 const _ = require('lodash')
+const fetch = require('node-fetch');
 
 const apiRoot = 'https://home.sensibo.com/api/v2'
 
 module.exports = function (RED) {
-  const request = (method, url, options) => {
+  const requestOld = (method, url, options) => {
+    console.log('Calling from old reqeusts module')
     return promiseRetry({ minTimeout: 5 }, (retry, number) => {
       if (number > 1) {
         console.log('retrying...', number)
@@ -19,8 +20,23 @@ module.exports = function (RED) {
       })
   }
 
+  const requestNew = (url, options) => {
+    console.log('Calling new reqeusts module')
+    console.log(url)
+    return promiseRetry({ minTimeout: 5 }, (retry, number) => {
+      if (number > 1) {
+        console.log('retrying...', number)
+      }
+      return fetch(url, options).catch(retry)
+    })
+
+      .catch((error) => {
+        throw error
+      })
+  }
+
   const getNames = (key) => {
-    return request('get', apiRoot + '/users/me/pods', {
+    return requestOld('get', apiRoot + '/users/me/pods', {
       qs: {
         apiKey: key,
         fields: 'id,room'
@@ -44,8 +60,20 @@ module.exports = function (RED) {
       })
   }
 
+  const getMeasurementsNew = (key, podname) => {
+    console.log("Gettting Measurements New Call")
+    var apiURI = new URL(apiRoot + '/pods/' + podname + '/measurements/')
+    apiURI.searchParams.append('apiKey', key)
+    var options = {
+      method: 'GET',
+      headers: {"content-type": "application/json",},        // Set to JSON
+      }
+    return fetch(apiURI, options)
+  }
+
   const getMeasurements = (key, podname) => {
-    return request('get', apiRoot + '/pods/' + podname + '/measurements/', {
+    console.log("Gettting Measurements Old Call")
+    return requestOld('get', apiRoot + '/pods/' + podname + '/measurements/', {
       qs: {
         apiKey: key
       },
@@ -57,8 +85,9 @@ module.exports = function (RED) {
       })
   }
 
+
   const getConfig = (key, podname) => {
-    return request('get', apiRoot + '/pods/' + podname, {
+    return requestOld('get', apiRoot + '/pods/' + podname, {
       qs: {
         apiKey: key,
         fields: '*'
@@ -78,7 +107,7 @@ module.exports = function (RED) {
     }
 
     console.log('Patching pod:' + id + ' with API key ' + key)
-    return request('get', apiRoot + '/pods/' + id, { qs, json: true, timeout: 5000 })
+    return requestOld('get', apiRoot + '/pods/' + id, { qs, json: true, timeout: 5000 })
       .then((data) => {
         return changeState(key, id, data.result.acState, patch)
       })
@@ -89,7 +118,7 @@ module.exports = function (RED) {
     const qs = { apiKey }
     acState = _.merge(acState, patch)
 
-    return request('post', apiRoot + '/pods/' + id + '/acStates', { qs, body: { acState }, json: true })
+    return requestOld('post', apiRoot + '/pods/' + id + '/acStates', { qs, body: { acState }, json: true })
   }
 
   function sensiboGet (config) {
@@ -133,8 +162,18 @@ module.exports = function (RED) {
           })
       } else {
         // Do the call to Sensibo as a promise and prepare message
-        getMeasurements(node.api.sensibo_api, config.pod)
-          .then(function (meas) {
+        // Now been updated to use Node-fetch directly
+
+        var apiURI = new URL(apiRoot + '/pods/' + config.pod + '/measurements/')
+        apiURI.searchParams.append('apiKey', node.api.sensibo_api)
+        var options = {
+          method: 'GET',
+          headers: {"accept": "application/json",},        // Set to JSON
+          }
+        fetch(apiURI, options)
+          .then(res => res.json())
+          //.then(json => console.log(JSON.stringify(json)))  // you cannot enable this as it will return a null value to the next function.  Just an FYI after some hard lessons on promises
+          .then(meas => {
             msg.temperature = meas.result[0].temperature
             msg.humidity = meas.result[0].humidity
             msg.secondsAgo = meas.result[0].time.secondsAgo
