@@ -9,8 +9,7 @@
   "main": "sensibo.js",
   "scripts": {
     "start": "node sensibo.js",
-    "measu": "node getmeasurement.js",
-    "test": "mocha --exit \"test/**/*_spec.js\""
+    "measu": "node getmeasurement.js"
   },
   "author": "David deMarco",
   "license": "ISC",
