@@ -20,33 +20,7 @@ module.exports = function (RED) {
       })
   }
 
-  const getNames = (key) => {
-    return requestOld('get', apiRoot + '/users/me/pods', {
-      qs: {
-        apiKey: key,
-        fields: 'id,room'
-      },
-      json: true
-    })
-
-
-      .then((pods) => {
-        // Test harness with two pods
-        // pods = {"status":"success","result":[{"id":"KN6PnUwG","room":{"name":"Living Room","icon":"lounge"}},{"id":"2NDPOD","room":{"name":"Bedroom","icon":"lounge"}}]}
-        var results = []
-        _.forEach(pods.result, function (pods, index) {
-          const item = {}
-          item.value = pods.id
-          item.label = pods.room.name
-          // item ["podID"] = pods.id;
-          // item ["podName"] = pods.room.name;
-          results.push(item)
-        })
-        return results
-      })
-  }
-
-  const patchPods = (key, id, patch) => {
+    const patchPods = (key, id, patch) => {
     const qs = {
       apiKey: key,
       fields: 'acState'
@@ -275,12 +249,21 @@ module.exports = function (RED) {
         method: 'GET',
         headers: {"accept": "application/json",},        // Set to JSON
         }
-
-
-      getNames(n.senAPI)
+        //20210429 - New fetch implemented
+        fetch(apiURI, options)
+        .then(res => res.json())
         .then(function (pods) {
-          console.log('Sending back pods ' + pods)
-          res.json(pods)
+          //Convert result into nice JSON to send to webclients
+          var results = []
+          _.forEach(pods.result, function (pods, index) {
+            const item = {}
+            item.value = pods.id
+            item.label = pods.room.name
+            results.push(item)
+          })
+          console.log('Sending back results of ' + JSON.stringify(results))
+          // set the response back 
+          res.json(results)
         })
         .catch(function (err) {
           // Error Handler
