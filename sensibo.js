@@ -1,45 +1,9 @@
-const rp = require('request-promise-native')
-const promiseRetry = require('promise-retry')
 const _ = require('lodash')
-const fetch = require('node-fetch');
+const fetch = require('node-fetch')
 
 const apiRoot = 'https://home.sensibo.com/api/v2'
 
 module.exports = function (RED) {
-  const requestOld = (method, url, options) => {
-    console.log('Calling from old reqeusts module')
-    return promiseRetry({ minTimeout: 5 }, (retry, number) => {
-      if (number > 1) {
-        console.log('retrying...', number)
-      }
-      return rp[method](url, options).catch(retry)
-    })
-
-      .catch((error) => {
-        throw error
-      })
-  }
-
-    const patchPods = (key, id, patch) => {
-    const qs = {
-      apiKey: key,
-      fields: 'acState'
-    }
-
-    console.log('Patching pod:' + id + ' with API key ' + key)
-    return requestOld('get', apiRoot + '/pods/' + id, { qs, json: true, timeout: 5000 })
-      .then((data) => {
-        return changeState(key, id, data.result.acState, patch)
-      })
-  }
-
-  // WARNING: This method modifies the acState object in place
-  const changeState = (apiKey, id, acState, patch) => {
-    const qs = { apiKey }
-    acState = _.merge(acState, patch)
-
-    return requestOld('post', apiRoot + '/pods/' + id + '/acStates', { qs, body: { acState }, json: true })
-  }
 
   function sensiboGet (config) {
     RED.nodes.createNode(this, config)
@@ -57,18 +21,17 @@ module.exports = function (RED) {
       // testcall.then( (names) => console.log('Got pod names:', JSON.stringify(names)))
 
       if (config.getconfig) {
-        
-        //20210428 - new code - working
+        // 20210428 - new code - working
 
-        var apiURI = new URL( apiRoot + '/pods/' + config.pod)
+        var apiURI = new URL(apiRoot + '/pods/' + config.pod)
         apiURI.searchParams.append('apiKey', node.api.sensibo_api)
         var options = {
           method: 'GET',
-          headers: {"accept": "application/json",},        // Set to JSON
-          }
-        
-          fetch(apiURI, options)
-          .then(res => res.json())        // new fetch code convert the message to JSON for the old code to work.
+          headers: { accept: 'application/json' } // Set to JSON
+        }
+
+        fetch(apiURI, options)
+          .then(res => res.json()) // new fetch code convert the message to JSON for the old code to work.
           .then(function (cfg) {
             node.status({ fill: 'green', shape: 'dot', text: 'waiting' })
             send(cfg)
@@ -94,15 +57,15 @@ module.exports = function (RED) {
         // Do the call to Sensibo as a promise and prepare message
         // Now been updated to use Node-fetch directly
 
-        var apiURI = new URL(apiRoot + '/pods/' + config.pod + '/measurements/')
+        apiURI = new URL(apiRoot + '/pods/' + config.pod + '/measurements/')
         apiURI.searchParams.append('apiKey', node.api.sensibo_api)
-        var options = {
+        options = {
           method: 'GET',
-          headers: {"accept": "application/json",},        // Set to JSON
-          }
+          headers: { accept: 'application/json' } // Set to JSON
+        }
         fetch(apiURI, options)
           .then(res => res.json())
-          //.then(json => console.log(JSON.stringify(json)))  // you cannot enable this as it will return a null value to the next function.  Just an FYI after some hard lessons on promises
+          // .then(json => console.log(JSON.stringify(json)))  // you cannot enable this as it will return a null value to the next function.  Just an FYI after some hard lessons on promises
           .then(meas => {
             msg.temperature = meas.result[0].temperature
             msg.humidity = meas.result[0].humidity
@@ -203,17 +166,46 @@ module.exports = function (RED) {
         cmdData.targetTemperature = msg.targetTemperature
       };
 
-      // console.log('Compiled Command is:' + JSON.stringify(cmdData))
+      console.log('Compiled Command is:' + JSON.stringify(cmdData))
 
-      var performPatch = patchPods(node.api.sensibo_api, config.pod, cmdData)
-        .then((cmdData) => {
-          msg.payload = cmdData
-          node.status({ fill: 'green', shape: 'dot', text: 'connected' })
-          send(msg)
-          // Check done exists (1.0+)
-          if (done) {
-            done()
+      // eslint-disable-next-line no-unused-vars
+      // var performPatch = patchPods(node.api.sensibo_api, config.pod, cmdData)
+
+      var apiURI = new URL(apiRoot + '/pods/' + config.pod)
+      apiURI.searchParams.append('apiKey', node.api.sensibo_api)
+      apiURI.searchParams.append('fields', 'acState')
+      var options = {
+        method: 'GET',
+        headers: { accept: 'application/json' } // Set to JSON
+      }
+
+      // return requestOld('get', apiRoot + '/pods/' + id, { qs, json: true, timeout: 5000 })
+      fetch(apiURI, options)
+        .then(res => res.json()) // new fetch code convert the message to JSON for the old code to work.
+        // .then(dt => console.log('JSON=' + JSON.stringify(dt.result.acState)))
+        .then((data) => {
+          var acState = _.merge(data.result, cmdData)
+          console.log('The Data is ' + JSON.stringify(acState))
+          var apiURIPatch = new URL(apiRoot + '/pods/' + config.pod + '/acStates')
+          apiURIPatch.searchParams.append('apiKey', node.api.sensibo_api)
+          var options = {
+            method: 'POST',
+            headers: { accept: 'application/json' }, // Set to JSON
+            body: JSON.stringify(acState)
           }
+          
+
+          fetch(apiURIPatch, options)
+            .then(res => res.json())
+            .then((cmdData)=> {
+              msg.payload = cmdData
+              node.status({ fill: 'green', shape: 'dot', text: 'connected' })
+              send(msg)
+              // Check done exists (1.0+)
+              if (done) {
+                done()
+              }
+            })
         })
 
         .catch(function (err) {
@@ -227,7 +219,6 @@ module.exports = function (RED) {
             // Fallback to node.error (pre-1.0)
             node.error(err, msg)
           }
-
           node.status({ fill: 'red', shape: 'dot', text: 'error' })
           send(msg)
         })
@@ -243,17 +234,18 @@ module.exports = function (RED) {
       const retrieveType = req.query.lkup
       console.log('Type of data to retrieve is ' + retrieveType)
       var apiURI = new URL(apiRoot + '/users/me/pods')
-      apiURI.searchParams.append('apiKey', n.senAPI)    //set the key directly to node-fetch
-      apiURI.searchParams.append('fields', 'id,room') 
+      apiURI.searchParams.append('apiKey', n.senAPI) // set the key directly to node-fetch
+      apiURI.searchParams.append('fields', 'id,room')
       var options = {
         method: 'GET',
-        headers: {"accept": "application/json",},        // Set to JSON
-        }
-        //20210429 - New fetch implemented
-        fetch(apiURI, options)
+        headers: { accept: 'application/json' } // Set to JSON
+      }
+
+      // 20210429 - New fetch implemented
+      fetch(apiURI, options)
         .then(res => res.json())
         .then(function (pods) {
-          //Convert result into nice JSON to send to webclients
+          // Convert result into nice JSON to send to webclients
           var results = []
           _.forEach(pods.result, function (pods, index) {
             const item = {}
@@ -262,7 +254,7 @@ module.exports = function (RED) {
             results.push(item)
           })
           console.log('Sending back results of ' + JSON.stringify(results))
-          // set the response back 
+          // set the response back
           res.json(results)
         })
         .catch(function (err) {
