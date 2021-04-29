@@ -4,7 +4,6 @@ const fetch = require('node-fetch')
 const apiRoot = 'https://home.sensibo.com/api/v2'
 
 module.exports = function (RED) {
-
   function sensiboGet (config) {
     RED.nodes.createNode(this, config)
     // Set the node equal to to top level of this for use in functions
@@ -147,7 +146,7 @@ module.exports = function (RED) {
       const cmdData = {}
       // #TODO - Map against possible values and validate
       if (typeof msg.on !== 'undefined') {
-        if (msg.on === 'true') {
+        if (msg.on === 'true' | msg.on) {
           cmdData.on = true
         } else {
           cmdData.on = false
@@ -182,22 +181,22 @@ module.exports = function (RED) {
       // return requestOld('get', apiRoot + '/pods/' + id, { qs, json: true, timeout: 5000 })
       fetch(apiURI, options)
         .then(res => res.json()) // new fetch code convert the message to JSON for the old code to work.
-        // .then(dt => console.log('JSON=' + JSON.stringify(dt.result.acState)))
         .then((data) => {
-          var acState = _.merge(data.result, cmdData)
-          console.log('The Data is ' + JSON.stringify(acState))
+          var acState = _.merge(data.result.acState, cmdData)
+          var newState = {}
+          newState.acState = acState
+          console.log('The Data is ' + JSON.stringify(newState))
           var apiURIPatch = new URL(apiRoot + '/pods/' + config.pod + '/acStates')
           apiURIPatch.searchParams.append('apiKey', node.api.sensibo_api)
           var options = {
             method: 'POST',
             headers: { accept: 'application/json' }, // Set to JSON
-            body: JSON.stringify(acState)
+            body: JSON.stringify(newState)
           }
-          
 
           fetch(apiURIPatch, options)
             .then(res => res.json())
-            .then((cmdData)=> {
+            .then((cmdData) => {
               msg.payload = cmdData
               node.status({ fill: 'green', shape: 'dot', text: 'connected' })
               send(msg)
