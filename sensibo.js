@@ -167,18 +167,14 @@ module.exports = function (RED) {
 
       console.log('Compiled Command is:' + JSON.stringify(cmdData))
 
-      // eslint-disable-next-line no-unused-vars
-      // var performPatch = patchPods(node.api.sensibo_api, config.pod, cmdData)
-
       var apiURI = new URL(apiRoot + '/pods/' + config.pod)
       apiURI.searchParams.append('apiKey', node.api.sensibo_api)
-      apiURI.searchParams.append('fields', 'acState')
+      // apiURI.searchParams.append('fields', 'acState')
       var options = {
         method: 'GET',
         headers: { accept: 'application/json' } // Set to JSON
       }
 
-      // return requestOld('get', apiRoot + '/pods/' + id, { qs, json: true, timeout: 5000 })
       fetch(apiURI, options)
         .then(res => res.json()) // new fetch code convert the message to JSON for the old code to work.
         .then((data) => {
