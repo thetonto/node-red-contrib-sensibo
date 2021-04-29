@@ -29,6 +29,7 @@ module.exports = function (RED) {
       json: true
     })
 
+
       .then((pods) => {
         // Test harness with two pods
         // pods = {"status":"success","result":[{"id":"KN6PnUwG","room":{"name":"Living Room","icon":"lounge"}},{"id":"2NDPOD","room":{"name":"Bedroom","icon":"lounge"}}]}
@@ -42,22 +43,6 @@ module.exports = function (RED) {
           results.push(item)
         })
         return results
-      })
-  }
-
-
-
-  const getConfig = (key, podname) => {
-    return requestOld('get', apiRoot + '/pods/' + podname, {
-      qs: {
-        apiKey: key,
-        fields: '*'
-      },
-      json: true
-    })
-
-      .then((meas) => {
-        return meas
       })
   }
 
@@ -98,8 +83,18 @@ module.exports = function (RED) {
       // testcall.then( (names) => console.log('Got pod names:', JSON.stringify(names)))
 
       if (config.getconfig) {
-        // Do the call to Sensibo for config oly as a promise and prepare message
-        getConfig(node.api.sensibo_api, config.pod)
+        
+        //20210428 - new code - working
+
+        var apiURI = new URL( apiRoot + '/pods/' + config.pod)
+        apiURI.searchParams.append('apiKey', node.api.sensibo_api)
+        var options = {
+          method: 'GET',
+          headers: {"accept": "application/json",},        // Set to JSON
+          }
+        
+          fetch(apiURI, options)
+          .then(res => res.json())        // new fetch code convert the message to JSON for the old code to work.
           .then(function (cfg) {
             node.status({ fill: 'green', shape: 'dot', text: 'waiting' })
             send(cfg)
@@ -140,7 +135,7 @@ module.exports = function (RED) {
             msg.secondsAgo = meas.result[0].time.secondsAgo
             msg.time = meas.result[0].time.time
             msg.payload = meas.status
-            node.status({ fill: 'green', shape: 'dot', text: 'waiting' })
+            node.status({ fill: 'green', shape: 'dot', text: 'pending' })
             send(msg)
             // Check done exists (1.0+)
             if (done) {
@@ -271,24 +266,26 @@ module.exports = function (RED) {
     // Create the admin server here so we have access to API Key.
     RED.httpAdmin.get('/sensibo', RED.auth.needsPermission('serial.read'), function (req, res) {
       // get the query string
-      const retrieveType = req.query.lkup  // 20210428 we are not using this at the momment so leave it be.  The client is calling this but we are ignoring it.  Might use later
-      // console.log('Type of data to retrieve is ' + retrieveType)
+      const retrieveType = req.query.lkup
+      console.log('Type of data to retrieve is ' + retrieveType)
       var apiURI = new URL(apiRoot + '/users/me/pods')
       apiURI.searchParams.append('apiKey', n.senAPI)    //set the key directly to node-fetch
+      apiURI.searchParams.append('fields', 'id,room') 
       var options = {
         method: 'GET',
         headers: {"accept": "application/json",},        // Set to JSON
         }
-      fetch(apiURI, options)
-      .then(res => res.json())
-      .then(function (pods) {
-        console.log('Sending back pods ' + JSON.stringify(pods))
-        res.json(pods)
-      })
-      .catch(function (err) {
-        // Error Handler
-        console.log('Sensibo Admin lookup failed with' + err)
-      })
+
+
+      getNames(n.senAPI)
+        .then(function (pods) {
+          console.log('Sending back pods ' + pods)
+          res.json(pods)
+        })
+        .catch(function (err) {
+          // Error Handler
+          console.log('Sensibo Admin lookup failed with' + err)
+        })
     }) // end of RED.http
   }
 
