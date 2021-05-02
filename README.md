@@ -11,7 +11,11 @@ This is an initial release of two nodes to communicate with the Sensibo Cloud.
 Once the API key is setup there is automatic pod discovery of available pods for configuration (no need to lookup podID's)
 
 ## Update for April 2021 ##
-The original code base was from work done by LukeGT and was based on the now deprecated requests library.  As I use the node myself I have been working to upgrade the code to remove the use of that library. Version 0.5.x will be remove that dependancy and my intention is to release a full version without the dependancy.  
+The code has now been updated to remove the deprecated call to the requests module and the other modules relied on it.  I have updated all the code to node-fetch with is a simple library that will hopefully be supported going foward.  The old versions will continue to work and I've updated the code to V0.5.0 which will mean current users will need to force an upgrade.
+
+All testing so far is that the new version works the same way and I have fixed the issue of Binary true/false vs String true/false when calling the node.
+
+There have been some very good fedback as to the way the messages go in and out of the nodes and in the interest of maintaining compatibility with all the current users this remains the same.
 
 
 ## Installation ##
@@ -43,11 +47,11 @@ While there are many common options each device type has additional supported op
 Good stuff is here:  result.remoteCapabilities.modes.heat.fanLevels
 
 ## Roadmap ##
-- Upgrade the Sensib node to multi-purpose get measurements, all available device fields or just nominated fields. - All available device fields done.
-- Upgrade the Sensibo-Send node to validate commands against available device options from the cloud, and/or populate the node with the available options
+The nodes work very well so far and now updated there is no major roadmap ahead unless requested.
 
 
 ## Credits: ##
 
-LukeGT -  [https://github.com/LukeGT/sensibo-controller](https://github.com/LukeGT/sensibo-controller)
-The lastest version (0.5.0 onwards no longer uses any of the code from LukeGT due to the deprecation of requests his work remains as to how to make this all work.
+LukeGT
+The lastest version (0.5.0 onwards no longer uses any of the code from LukeGT due to the deprecation of his work this remains as a credit to the original work.  
+

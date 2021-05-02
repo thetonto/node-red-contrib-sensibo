@@ -3,6 +3,7 @@
 var helper = require('node-red-node-test-helper')
 var sensibo = require('../sensibo.js')
 var config = require('./config_out')
+var cred = require('./credentials')
 
 var flow = config.flow
 
@@ -31,8 +32,22 @@ describe('sensibo Node', function () {
   it('send should have an API Property', function (done) {
     helper.load(sensibo, flow, function () {
       var n1 = helper.getNode('n1')
-      n1.api.should.have.property('sensibo_api', 'k3UFQF3fUCMaCv8VDmcoYzGBT1tglj')
+      n1.api.should.have.property('sensibo_api', cred.api)
       done()
+    })
+  })
+
+  it('should turn on', function (done) {
+    helper.load(sensibo, flow, function () {
+      var n1 = helper.getNode('n1')
+      var nh = helper.getNode('nh')
+      nh.on('input', function (msg) {
+        console.log('Message back ' + msg.payload.status)
+        msg.payload.should.have.property('status', 'success')
+        done()
+      })
+      console.log('the node is ' + JSON.stringify(nh))
+      n1.receive({ on: true })
     })
   })
 
@@ -55,11 +70,25 @@ describe('sensibo Node', function () {
       var n1 = helper.getNode('n1')
       var nh = helper.getNode('nh')
       nh.on('input', function (msg) {
-        console.log('mode Message back ' + msg.payload.status)
+        // console.log('mode Message back ' + msg.payload.status)
         msg.payload.should.have.property('status', 'success')
         done()
       })
       n1.receive({ mode: 'auto' })
     })
   })
+  it('should turn off', function (done) {
+    helper.load(sensibo, flow, function () {
+      var n1 = helper.getNode('n1')
+      var nh = helper.getNode('nh')
+      nh.on('input', function (msg) {
+        msg.payload.should.have.property('status', 'success')
+        done()
+      })
+      console.log('the node is ' + JSON.stringify(nh))
+      n1.receive({ on: false })
+    })
+  })
+
+
 })

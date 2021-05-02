@@ -15,12 +15,7 @@ module.exports = function (RED) {
       send = send || function () { node.send.apply(node, arguments) }
       this.status({ fill: 'green', shape: 'ring', text: 'polling' })
 
-      // Lets call our new generic routines - handy location to also test code
-      // var testcall = getNames(node.api.sensibo_api);
-      // testcall.then( (names) => console.log('Got pod names:', JSON.stringify(names)))
-
       if (config.getconfig) {
-        // 20210428 - new code - working
 
         var apiURI = new URL(apiRoot + '/pods/' + config.pod)
         apiURI.searchParams.append('apiKey', node.api.sensibo_api)
@@ -64,13 +59,13 @@ module.exports = function (RED) {
         }
         fetch(apiURI, options)
           .then(res => res.json())
-          // .then(json => console.log(JSON.stringify(json)))  // you cannot enable this as it will return a null value to the next function.  Just an FYI after some hard lessons on promises
           .then(meas => {
+
             msg.temperature = meas.result[0].temperature
+            msg.payload = meas.status
             msg.humidity = meas.result[0].humidity
             msg.secondsAgo = meas.result[0].time.secondsAgo
             msg.time = meas.result[0].time.time
-            msg.payload = meas.status
             node.status({ fill: 'green', shape: 'dot', text: 'pending' })
             send(msg)
             // Check done exists (1.0+)
@@ -181,7 +176,6 @@ module.exports = function (RED) {
           var acState = _.merge(data.result.acState, cmdData)
           var newState = {}
           newState.acState = acState
-          console.log('The Data is ' + JSON.stringify(newState))
           var apiURIPatch = new URL(apiRoot + '/pods/' + config.pod + '/acStates')
           apiURIPatch.searchParams.append('apiKey', node.api.sensibo_api)
           var options = {
