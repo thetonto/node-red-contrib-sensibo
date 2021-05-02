@@ -12,7 +12,7 @@
       <h3>Properties</h3>
       <dl class="message-properties">
       <dt>pod <span class="property-type">selector</span></dt>
-      <dd>pod to control.</dd>
+      <dd>The pod to get the measurements from.  Click on magnifying glass to get list of available pods from sensibo.  This may take a moment to resolve from the server</dd>
 
       <h3>Inputs</h3>
       <dl class="message-properties">
@@ -20,8 +20,8 @@
               <span class="property-type">string | buffer</span>
           </dt>
           <dd> Payload is not currently assigned to a function</dd>
-          <dt class="optional">msg.on<span class="property-type">binary</span></dt>
-          <dd> Turn the Airconditioning unit on and off. true/false</dd>
+          <dt class="optional">msg.on<span class="property-type">string/binary</span></dt>
+          <dd> Turn the Airconditioning unit on and off. true/false.  Bug fixed so both types will accepted</dd>
           <dt class="optional">msg.swing<span class="property-type">string</span></dt>
           <dd> Sets the swing mode.</dd>
           <dt class="optional">msg.mode<span class="property-type">string</span></dt>

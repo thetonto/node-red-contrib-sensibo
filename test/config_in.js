@@ -8,8 +8,8 @@ this.flow = [
 		"sensiboAPI": "fcfae818.98aca8",
 		"name": "sensibo in",
 		"pod": config.pod,
-		"getconfig": "",
-		"polltime": "",
+		"getconfig": false,
+		"polltime": "0",
 		"x": 360,
 		"y": 140,
 		"wires": [
