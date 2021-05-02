@@ -4,8 +4,8 @@ Set of nodes for the Sensibo Sky air conditioning controllers.
 
 [https://sensibo.com/](https://sensibo.com/ "Sensibo Home Page")
 
-This is an initial release of two nodes to communicate with the Sensibo Cloud.
-- Sensibo: Trigger -> or Poll the cloud for measurements.
+This is a release of two nodes to communicate with the Sensibo Cloud.
+- Sensibo-in -> Either trigger or timer poll the cloud for measurements.  Can also retreive full config of the node 
 - Sensibo-send ->  Send commands to the cloud.
 
 Once the API key is setup there is automatic pod discovery of available pods for configuration (no need to lookup podID's)
@@ -15,7 +15,7 @@ The code has now been updated to remove the deprecated call to the requests modu
 
 All testing so far is that the new version works the same way and I have fixed the issue of Binary true/false vs String true/false when calling the node.
 
-There have been some very good fedback as to the way the messages go in and out of the nodes and in the interest of maintaining compatibility with all the current users this remains the same.
+There have been some very good feedback as to the way the messages go in and out of the nodes and in the interest of maintaining compatibility with all the current users this remains the same.
 
 
 ## Installation ##
