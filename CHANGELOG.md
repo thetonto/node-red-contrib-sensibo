@@ -26,3 +26,6 @@ Support for retreiving full device informationn so you can see all available fun
 **V 0.5.0**
 - Removed the deprecated requests and promises library.  requests has been replaced by node-fetch which is very light weight and seems to have worked well.
 - Code has been heavily refactored to accomodate node-fetch and also make the code easier to read/maintain.  
+
+**V 0.5.1**
+- Fixed the testing suite and added on/off testing in binary.
