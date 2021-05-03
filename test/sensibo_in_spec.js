@@ -62,4 +62,16 @@ describe('sensibo Node', function () {
       })
     })
   })
+  it('should get full configuration', function (done) {
+    helper.load(sensibo, config.configflow, function () {
+      var n1 = helper.getNode('n1')
+      var nh = helper.getNode('nh')
+      nh.on('input', function (msg) {
+        console.log('Testing:' + JSON.stringify(msg))
+        msg.should.have.property('status', 'success')
+        done()
+      })
+      n1.receive({ payload: 'getMeasurement' })
+    })
+  })
 })
