@@ -29,3 +29,6 @@ Support for retreiving full device informationn so you can see all available fun
 
 **V 0.5.1**
 - Fixed the testing suite and added on/off testing in binary.
+
+**V 0.5.2**
+- Get config was not returning all fields.  Query string was missing after migration to node-fetch

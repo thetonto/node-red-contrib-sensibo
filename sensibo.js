@@ -16,9 +16,10 @@ module.exports = function (RED) {
       this.status({ fill: 'green', shape: 'ring', text: 'polling' })
 
       if (config.getconfig) {
-
         var apiURI = new URL(apiRoot + '/pods/' + config.pod)
         apiURI.searchParams.append('apiKey', node.api.sensibo_api)
+        apiURI.searchParams.append('fields', '*')
+        console.log(apiURI.href)
         var options = {
           method: 'GET',
           headers: { accept: 'application/json' } // Set to JSON
@@ -60,7 +61,6 @@ module.exports = function (RED) {
         fetch(apiURI, options)
           .then(res => res.json())
           .then(meas => {
-
             msg.temperature = meas.result[0].temperature
             msg.payload = meas.status
             msg.humidity = meas.result[0].humidity
