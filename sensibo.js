@@ -13,12 +13,20 @@ module.exports = function (RED) {
     this.on('input', function (msg, send, done) {
       // If this is pre-1.0, 'send' will be undefined, so fallback to node.send
       send = send || function () { node.send.apply(node, arguments) }
+
+      // Set the status on the node
       this.status({ fill: 'green', shape: 'ring', text: 'polling' })
 
-      if (config.getconfig) {
+      if (config.getconfig || config.getACState) {
         var apiURI = new URL(apiRoot + '/pods/' + config.pod)
         apiURI.searchParams.append('apiKey', node.api.sensibo_api)
-        apiURI.searchParams.append('fields', '*')
+        // Set the search depending on of we are getting the whole config or just the acState
+        if (config.getconfig) {
+          apiURI.searchParams.append('fields', '*')
+        } else {
+          apiURI.searchParams.append('fields', 'acState')
+        }
+
         console.log(apiURI.href)
         var options = {
           method: 'GET',

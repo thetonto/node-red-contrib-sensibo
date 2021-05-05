@@ -4,7 +4,6 @@ node_modules
 ._.DS_Store
 working/
 .vscode/
-html/
 sensibo.code-workspace
-html/sensibo in help.html
 test/credentials.js
+html/nodeRED.css

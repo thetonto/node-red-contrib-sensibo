@@ -37,6 +37,7 @@
             name: {value:""},
             pod: {value:""},
             getconfig: {value: ""},
+            getACState: {value: ''},
             polltime: {value:"0", validate:function checkvalid(v){
                 //check value is either 0, or greater than 60s.  Sure there is compressed way of doing this but it works and is clear to read
                 if (v == 0){return true;}
@@ -60,7 +61,6 @@
                         minLength:0,
                         close: function( event, ui ) {
                             $("#node-input-pod").autocomplete( "destroy" );
-                            //alert("finished - should now get the configuration")
                         }
                     }).autocomplete("search","");
                 });
@@ -70,13 +70,20 @@
 
             //Hide the polling option if get config is selected.
             $('#node-input-getconfig').change(function(){
-            if(this.checked){
-                $('.setstate').hide();
-                $('#node-input-polltime').val("0");
-            }
-            else
-                $('.setstate').show();
-        });
+                if(this.checked){
+                    $('.setstate').hide()
+                    $('#node-input-getACState').prop('checked', false)
+                    $('#node-input-polltime').val('0')
+                }
+                else
+                    {$('.setstate').show()}
+                });
+            $('#node-input-getACState').change(function(){
+                if (this.checked) {
+                    //alert("that worked")
+                $('.setpoll').hide()
+                } else { $('.setpoll').show() }
+            })
         },
         oneditsave: function(){
             //set the pod to just the ID number off the friendly name
@@ -96,26 +103,19 @@
         <input type="text" id="node-input-pod" style="width:60%;">
         <a id="node-lookup-pod" class="btn"><i id="node-lookup-pod-icon" class="fa fa-search"></i></a>
     </div>
+      
+      
+    <div class="form-row"> <label for="node-input-getconfig"><i class="fa fa-briefcase"></i> Get Config</label>
+    <input id="node-input-getconfig" name="Get Config" type="checkbox"></div>
+    
+    <div class="form-row setstate"> <label for="node-input-getACState"><i class="fa fa-cogs"></i> Get AC State</label>
+    <input id="node-input-getACState" name="Get AC State" type="checkbox"></div>
+    
+    <div class="form-row setstate setpoll"> <label for="node-input-polltime"> Polling time</label>
+    <input id="node-input-polltime" placeholder="seconds" type="text"></div>
 
-    <div class="form-row"> 
-        <label for="node-input-getconfig">
-            <i class="icon-tag"></i>
-            Get config
-        </label>
-            <input id="node-input-getconfig" name="Get Config" type="checkbox">
-    </div>
-    
-    
-    <div class="form-row setstate">
-        <label for="node-input-prefix"><i class= "fa fa-clock-o"></i> Polling time</label>
-        <input type="text" id="node-input-polltime" placeholder="seconds">
-    </div>
-    <div class="form-row">
-        <label for="node-input-name">
-            <i class="icon-tag"></i>
-            Name
-        </label>
-        <input type="text" id="node-input-name" placeholder="Name">
+    <div class="form-row"> <label for="node-input-name"><i class="icon-tag"></i>
+        Name</label> <input id="node-input-name" placeholder="Name" type="text">
     </div>
 </script>
 
@@ -183,17 +183,21 @@
     <h3>Properties</h3>
     <dl class="message-properties">
     <dt>pod <span class="property-type">string</span></dt>
-    <dd>pod to get the measurements from.  This may take a moment to resolve from the server</dd>
+    <dd>The pod to get the measurements from.  Click on magnifying glass to get list of available pods from sensibo.  This may take a moment to resolve from the server</dd>
     
     <dt>Get config only<span class="property-type">boolen</span></dt>
     <dd>If selected the node will get the properties of the node.  Polling will be not be available.  Useful to find out the various modes that your unit supports</dd>
+ 
     
+    <dt>polling time <span class="property-type">string</span></dt>
+    <dd>How often in seconds to poll the cloud.  0 = no polling and if set a minimum of 60 seconds</dd>
+
     <h3>Inputs</h3>
     <dl class="message-properties">
         <dt>payload
             <span class="property-type">string | buffer</span>
         </dt>
-        <dd> Currently any incoming message will trigger a lookup of the measurements for the requested pod </dd>
+        <dd> Currently any payload will trigger a lookup of the measurements for the requested pod </dd>
         <dt class="optional">topic <span class="property-type">string</span></dt>
         <dd> Currently topic has no impact on the node.</dd>
     </dl>
@@ -219,46 +223,48 @@
 
 <script type="text/x-red" data-help-name="sensibo send">
     <p>Connects to Sensibo cloud and sends updates for the selected pod</p>
-      <h3>Configuration</h3>
-      <p>An API needs to be obtained from Sensibo</p>
+    <h3>Configuration</h3>
+    <p>An API needs to be obtained from Sensibo</p>
 
-      <h3>Properties</h3>
-      <dl class="message-properties">
-      <dt>pod <span class="property-type">selector</span></dt>
-      <dd>pod to control.</dd>
+    <h3>Properties</h3>
+    <dl class="message-properties">
+    <dt>pod <span class="property-type">selector</span></dt>
+    <dd>The pod to get the measurements from.  Click on magnifying glass to get list of available pods from sensibo.  This may take a moment to resolve from the server</dd>
 
-      <h3>Inputs</h3>
-      <dl class="message-properties">
-          <dt>payload
-              <span class="property-type">string | buffer</span>
-          </dt>
-          <dd> Payload is not currently assigned to a function</dd>
-          <dt class="optional">msg.on<span class="property-type">binary</span></dt>
-          <dd> Turn the Airconditioning unit on and off. true/false</dd>
-          <dt class="optional">msg.swing<span class="property-type">string</span></dt>
-          <dd> Sets the swing mode.</dd>
-          <dt class="optional">msg.mode<span class="property-type">string</span></dt>
-          <dd> Set the operating mode: cool/heat/fan/dry/auto'</dd>
-          <dt class="optional">msg.fanlevel<span class="property-type">string</span></dt>
-          <dd> Set the fan level: quiet/low/medium low/medium/medium high/high/auto.  Note:  medium high/low may not be supported on all units</dd>
-          <dt class="optional">msg.targetTemperature<span class="property-type">number</span></dt>
-          <dd> Sets the target temperature to reach.'</dd>
-          
-      </dl>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload
+            <span class="property-type">string | buffer</span>
+        </dt>
+        <dd> Payload is not currently assigned to a function</dd>
+        <dt class="optional">msg.on<span class="property-type">string/binary</span></dt>
+        <dd> Turn the Airconditioning unit on and off. true/false.  Bug fixed so both types will accepted</dd>
+        <dt class="optional">msg.swing<span class="property-type">string</span></dt>
+        <dd> Sets the swing mode.</dd>
+        <dt class="optional">msg.mode<span class="property-type">string</span></dt>
+        <dd> Set the operating mode: cool/heat/fan/dry/auto'</dd>
+        <dt class="optional">msg.fanlevel<span class="property-type">string</span></dt>
+        <dd> Set the fan level: quiet/low/medium low/medium/medium high/high/auto.  Note:  medium high/low may not be supported on all units</dd>
+        <dt class="optional">msg.targetTemperature<span class="property-type">number</span></dt>
+        <dd> Sets the target temperature to reach.'</dd>
+        
 
-      <h3>Outputs</h3>
-      <ol class="node-ports">
-          <li>Standard output
-              <dl class="message-properties">
-                  <dt>payload <span class="property-type">object</span></dt>
-                  <dd>Status of the request to Sensibo</dd>
-              </dl>
-          </li>
-          <li>Standard error
-              <dl class="message-properties">
-                  <dt>payload <span class="property-type">string</span></dt>
-                  <dd>Will return the error received from the Sensibo server</dd>
-              </dl>
-          </li>
-      </ol>
+
+    </dl>
+
+    <h3>Outputs</h3>
+    <ol class="node-ports">
+        <li>Standard output
+            <dl class="message-properties">
+                <dt>payload <span class="property-type">object</span></dt>
+                <dd>Status of the request to Sensibo</dd>
+            </dl>
+        </li>
+        <li>Standard error
+            <dl class="message-properties">
+                <dt>payload <span class="property-type">string</span></dt>
+                <dd>Will return the error received from the Sensibo server</dd>
+            </dl>
+        </li>
+    </ol>
 </script>
