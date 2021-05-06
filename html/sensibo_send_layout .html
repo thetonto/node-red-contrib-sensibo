@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
+    <link rel="stylesheet" href="nodeRED.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="crossorigin="anonymous"></script>
+    <script src="testing.js"></script>
+  </head>
+
+
+  <body>
+    <div class="form-row"> <label for="node-input-sensiboAPI">API Configuration</label>
+      <input id="node-input-sensiboAPI" type="text"> </div>
+    <div class="form-row"> <label for="node-input-prefix">Pod</label>
+      <select id="node-input-podSelector" style="width:70%">
+      </select>
+    </div>
+    <div class="form-row"><br>
+    </div>
+    
+    
+    <div class="form-row"> <label for="node-input-getConfig"><i class="fa-briefcase"></i> Get config only</label><input id="node-input-getConfig" name="Get Config" type="checkbox"></div>
+    
+    <div class="form-row"> <label for="node-input-polltime"> Polling time</label>
+      <input id="node-input-polltime" placeholder="seconds" type="text"></div>
+    
+      <div class="form-row setstate"><label for="node-input-state"><i class="fa-power-off"></i>On
+        State
+        <select name="onstate" form="onstate" style="width:70%">
+          <option value="true">On</option>
+          <option value="false">Off</option>
+        </select>
+      </label> </div>
+    
+      <div class="form-row setstate"><label for="node-input-mode"><i class="fa-microchip"></i>
+        Mode;
+        <select id="node-input-mode" name="mode" list="mode" style="width:70%">
+          <option value="auto">Auto</option>
+          <option value="cool">Cool</option>
+          <option value="heat">Heat</option>
+          <option value="dry">Dry</option>
+          <option value="fan">Fan</option>
+        </select>
+      </label> </div>
+    <div class="form-row setstate"><label for="node-input-fanlevel"><i class="fa-cog"></i>
+        Fan Level
+        <select id="node-input-fanlevel" name="fanLevel" style="width:70%">
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+          <option value="auto">Auto</option>
+        </select>
+      </label> </div>
+    <div class="form-row setstate"><label for="node-input-targettemp"><i class="fa-thermometer-three-quarters"></i>
+        Target Temperature </label><input id="node-input-fanlevel" type="text">
+    </div>
+    <div class="form-row"> <label for="node-input-targettemp"><i class="icon-tag"></i>
+        Name</label> <input id="node-input-name" placeholder="Name" type="text">
+    </div>
+  </body>
+</html>

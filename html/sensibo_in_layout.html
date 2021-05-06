@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
+    <link rel="stylesheet" href="nodeRED.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="crossorigin="anonymous"></script>
+    <script src="test_jquery.js"></script>
+  </head>
+
+
+  <body>
+    <div class="form-row">
+      <label for="node-input-sensiboAPI"><span data-i18n="sensibo.label.key"></span></label>
+      <input type="text" id="node-input-sensiboAPI">
+  </div>
+
+  <div class="form-row">
+      <label for="node-input-pod"><i class="fa fa-superpowers"></i> <span data-i18n="sensibo.label.podname"></span></label>
+      <input type="text" id="node-input-pod" style="width:60%;">
+      <a id="node-lookup-pod" class="btn"><i id="node-lookup-pod-icon" class="fa fa-search"></i></a>
+  </div>
+    
+    
+    <div class="form-row"> <label for="node-input-getconfig"><i class="fa fa-briefcase"></i> Get Config</label>
+      <input id="node-input-getconfig" name="Get Config" type="checkbox"></div>
+    
+    <div class="form-row setstate"> <label for="node-input-getACState"><i class="fa fa-cogs"></i> Get AC State</label>
+      <input id="node-input-getACState" name="Get AC State" type="checkbox"></div>
+    
+    <div class="form-row setstate setpoll"> <label for="node-input-polltime"> Polling time</label>
+      <input id="node-input-polltime" placeholder="seconds" type="text"></div>
+
+    <div class="form-row"> <label for="node-input-name"><i class="icon-tag"></i>
+        Name</label> <input id="node-input-name" placeholder="Name" type="text">
+    </div>
+  </body>
+</html>

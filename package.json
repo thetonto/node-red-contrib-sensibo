@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-sensibo",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "description": "Communication nodes to Sensibo cloud",
   "keywords": [
     "node-red",
@@ -9,7 +9,7 @@
   "main": "sensibo.js",
   "scripts": {
     "start": "node sensibo.js",
-    "measu": "node getmeasurement.js",
+    "Test Get Measurement": "node working/getmeasurement.js",
     "test": "mocha \"test/**/*_spec.js\""
   },
   "author": "David deMarco",
