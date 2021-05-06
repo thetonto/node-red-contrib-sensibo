@@ -1,3 +1,5 @@
+/* cSpell:disable */
+
 const _ = require('lodash')
 const fetch = require('node-fetch')
 
@@ -36,7 +38,7 @@ module.exports = function (RED) {
         fetch(apiURI, options)
           .then(res => res.json()) // new fetch code convert the message to JSON for the old code to work.
           .then(function (cfg) {
-            node.status({ fill: 'green', shape: 'dot', text: 'waiting' })
+            node.status({ fill: 'green', shape: 'dot', text: 'Connected' })
             send(cfg)
             // Check done exists (1.0+)
             if (done) {
@@ -74,7 +76,7 @@ module.exports = function (RED) {
             msg.humidity = meas.result[0].humidity
             msg.secondsAgo = meas.result[0].time.secondsAgo
             msg.time = meas.result[0].time.time
-            node.status({ fill: 'green', shape: 'dot', text: 'pending' })
+            node.status({ fill: 'green', shape: 'dot', text: 'Connected' })
             send(msg)
             // Check done exists (1.0+)
             if (done) {
@@ -165,14 +167,19 @@ module.exports = function (RED) {
         cmdData.fanLevel = msg.fanlevel
       };
       if (typeof msg.targetTemperature !== 'undefined') {
-        cmdData.targetTemperature = msg.targetTemperature
+        if (typeof msg.targetTemperature === 'string') {
+          console.log('Target Temperature is a string so converting to integer')
+          cmdData.targetTemperature = parseInt(msg.targetTemperature)
+        } else {
+          cmdData.targetTemperature = msg.targetTemperature
+        }
       };
 
       console.log('Compiled Command is:' + JSON.stringify(cmdData))
 
       var apiURI = new URL(apiRoot + '/pods/' + config.pod)
       apiURI.searchParams.append('apiKey', node.api.sensibo_api)
-      // apiURI.searchParams.append('fields', 'acState')
+      apiURI.searchParams.append('fields', 'acState') // Only get the acState field
       var options = {
         method: 'GET',
         headers: { accept: 'application/json' } // Set to JSON
@@ -181,7 +188,7 @@ module.exports = function (RED) {
       fetch(apiURI, options)
         .then(res => res.json()) // new fetch code convert the message to JSON for the old code to work.
         .then((data) => {
-          var acState = _.merge(data.result.acState, cmdData)
+          var acState = _.merge(data.result, cmdData)
           var newState = {}
           newState.acState = acState
           var apiURIPatch = new URL(apiRoot + '/pods/' + config.pod + '/acStates')
@@ -196,7 +203,7 @@ module.exports = function (RED) {
             .then(res => res.json())
             .then((cmdData) => {
               msg.payload = cmdData
-              node.status({ fill: 'green', shape: 'dot', text: 'connected' })
+              node.status({ fill: 'green', shape: 'dot', text: 'Connected' })
               send(msg)
               // Check done exists (1.0+)
               if (done) {

@@ -1,3 +1,4 @@
+
 <script type="text/javascript">
     (function() {
         RED.nodes.registerType('sensibo-config',{
@@ -185,10 +186,12 @@
     <dt>pod <span class="property-type">string</span></dt>
     <dd>The pod to get the measurements from.  Click on magnifying glass to get list of available pods from sensibo.  This may take a moment to resolve from the server</dd>
     
-    <dt>Get config only<span class="property-type">boolen</span></dt>
-    <dd>If selected the node will get the properties of the node.  Polling will be not be available.  Useful to find out the various modes that your unit supports</dd>
+    <dt>Get config only<span class="property-type">boolean</span></dt>
+    <dd>If selected the node will get the properties of the node.  Polling  or get AC State will be not be available.  Useful to find out the various modes that your unit supports</dd>
  
-    
+    <dt>Get AC State<span class="property-type">boolean</span></dt>
+    <dd>If selected the node will get the AC State only.  The get config option will return the AC State as well, however it contains a lot of other data so this option is more efficient if you just want the current AC State</dd>
+     
     <dt>polling time <span class="property-type">string</span></dt>
     <dd>How often in seconds to poll the cloud.  0 = no polling and if set a minimum of 60 seconds</dd>
 
@@ -238,7 +241,7 @@
         </dt>
         <dd> Payload is not currently assigned to a function</dd>
         <dt class="optional">msg.on<span class="property-type">string/binary</span></dt>
-        <dd> Turn the Airconditioning unit on and off. true/false.  Bug fixed so both types will accepted</dd>
+        <dd> Turn the air conditioning unit on and off. true/false.  Bug fixed so both types will accepted</dd>
         <dt class="optional">msg.swing<span class="property-type">string</span></dt>
         <dd> Sets the swing mode.</dd>
         <dt class="optional">msg.mode<span class="property-type">string</span></dt>

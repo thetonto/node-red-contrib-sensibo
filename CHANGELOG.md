@@ -22,6 +22,9 @@ Support for retreiving full device informationn so you can see all available fun
 
 **V 0.3.3**
 - Linting introduced a type error on the patch function.  Function worked but would report an error
+
+**V 0.4.0**
+- Scrapped as went very totally wrong
   
 **V 0.5.0**
 - Removed the deprecated requests and promises library.  requests has been replaced by node-fetch which is very light weight and seems to have worked well.
@@ -32,3 +35,9 @@ Support for retreiving full device informationn so you can see all available fun
 
 **V 0.5.2**
 - Get config was not returning all fields.  Query string was missing after migration to node-fetch
+
+**V 0.6.0**
+- New feature which allows for getting of the AC State Only 
+- Improved the send function with fields 
+- Fixed potential issue where TargetTemp is sent as a string.  Now converted to in to prevent failure
+- Examples now provided to show the different functions
