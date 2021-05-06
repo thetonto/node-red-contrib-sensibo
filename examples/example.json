@@ -1,0 +1,643 @@
+[
+	{
+		"id": "eca0bcee.5d10c",
+		"type": "inject",
+		"z": "e370ff22.5bfa7",
+		"name": "",
+		"props": [
+			{
+				"p": "payload"
+			},
+			{
+				"p": "topic",
+				"vt": "str"
+			}
+		],
+		"repeat": "",
+		"crontab": "",
+		"once": false,
+		"onceDelay": 0.1,
+		"topic": "",
+		"payload": "",
+		"payloadType": "date",
+		"x": 120,
+		"y": 100,
+		"wires": [
+			[
+				"58790ff4.efad1"
+			]
+		]
+	},
+	{
+		"id": "e28893b2.2583f",
+		"type": "debug",
+		"z": "e370ff22.5bfa7",
+		"name": "",
+		"active": true,
+		"tosidebar": true,
+		"console": false,
+		"tostatus": false,
+		"complete": "true",
+		"targetType": "full",
+		"statusVal": "",
+		"statusType": "auto",
+		"x": 600,
+		"y": 100,
+		"wires": []
+	},
+	{
+		"id": "8fa277a4.f03118",
+		"type": "sensibo send",
+		"z": "e370ff22.5bfa7",
+		"sensiboAPI": "9df9fc0f.e285",
+		"name": "",
+		"pod": "KN6PnUwG",
+		"podSelector": "",
+		"x": 610,
+		"y": 380,
+		"wires": [
+			[
+				"f7f97e94.0ccf9"
+			]
+		]
+	},
+	{
+		"id": "5cd323eb.b5abfc",
+		"type": "inject",
+		"z": "e370ff22.5bfa7",
+		"name": "",
+		"props": [
+			{
+				"p": "payload"
+			},
+			{
+				"p": "topic",
+				"vt": "str"
+			}
+		],
+		"repeat": "",
+		"crontab": "",
+		"once": false,
+		"onceDelay": 0.1,
+		"topic": "",
+		"payload": "",
+		"payloadType": "date",
+		"x": 120,
+		"y": 340,
+		"wires": [
+			[
+				"f798706d.08bd5"
+			]
+		]
+	},
+	{
+		"id": "f798706d.08bd5",
+		"type": "change",
+		"z": "e370ff22.5bfa7",
+		"name": "Set ON",
+		"rules": [
+			{
+				"t": "set",
+				"p": "on",
+				"pt": "msg",
+				"to": "true",
+				"tot": "bool"
+			}
+		],
+		"action": "",
+		"property": "",
+		"from": "",
+		"to": "",
+		"reg": false,
+		"x": 340,
+		"y": 340,
+		"wires": [
+			[
+				"8fa277a4.f03118"
+			]
+		]
+	},
+	{
+		"id": "f7f97e94.0ccf9",
+		"type": "debug",
+		"z": "e370ff22.5bfa7",
+		"name": "",
+		"active": true,
+		"tosidebar": true,
+		"console": false,
+		"tostatus": false,
+		"complete": "payload",
+		"targetType": "msg",
+		"statusVal": "",
+		"statusType": "auto",
+		"x": 830,
+		"y": 380,
+		"wires": []
+	},
+	{
+		"id": "bcbd2b5d.dbc8f8",
+		"type": "inject",
+		"z": "e370ff22.5bfa7",
+		"name": "",
+		"props": [
+			{
+				"p": "payload"
+			},
+			{
+				"p": "topic",
+				"vt": "str"
+			}
+		],
+		"repeat": "",
+		"crontab": "",
+		"once": false,
+		"onceDelay": 0.1,
+		"topic": "",
+		"payload": "",
+		"payloadType": "date",
+		"x": 120,
+		"y": 420,
+		"wires": [
+			[
+				"3af3e2d6.caad2e"
+			]
+		]
+	},
+	{
+		"id": "3af3e2d6.caad2e",
+		"type": "change",
+		"z": "e370ff22.5bfa7",
+		"name": "Set OFF",
+		"rules": [
+			{
+				"t": "set",
+				"p": "on",
+				"pt": "msg",
+				"to": "false",
+				"tot": "bool"
+			}
+		],
+		"action": "",
+		"property": "",
+		"from": "",
+		"to": "",
+		"reg": false,
+		"x": 340,
+		"y": 420,
+		"wires": [
+			[
+				"8fa277a4.f03118"
+			]
+		]
+	},
+	{
+		"id": "58790ff4.efad1",
+		"type": "sensibo in",
+		"z": "e370ff22.5bfa7",
+		"sensiboAPI": "9df9fc0f.e285",
+		"name": "Get Measurements",
+		"pod": "KN6PnUwG",
+		"getconfig": false,
+		"getACState": false,
+		"polltime": "0",
+		"x": 380,
+		"y": 100,
+		"wires": [
+			[
+				"e28893b2.2583f"
+			]
+		]
+	},
+	{
+		"id": "a3b59379.b34db",
+		"type": "inject",
+		"z": "e370ff22.5bfa7",
+		"name": "",
+		"props": [
+			{
+				"p": "payload"
+			},
+			{
+				"p": "topic",
+				"vt": "str"
+			}
+		],
+		"repeat": "",
+		"crontab": "",
+		"once": false,
+		"onceDelay": 0.1,
+		"topic": "",
+		"payload": "",
+		"payloadType": "date",
+		"x": 120,
+		"y": 160,
+		"wires": [
+			[
+				"c67d800c.e5cc2"
+			]
+		]
+	},
+	{
+		"id": "639e57ac.9e94d8",
+		"type": "debug",
+		"z": "e370ff22.5bfa7",
+		"name": "",
+		"active": true,
+		"tosidebar": true,
+		"console": false,
+		"tostatus": false,
+		"complete": "true",
+		"targetType": "full",
+		"statusVal": "",
+		"statusType": "auto",
+		"x": 600,
+		"y": 160,
+		"wires": []
+	},
+	{
+		"id": "c67d800c.e5cc2",
+		"type": "sensibo in",
+		"z": "e370ff22.5bfa7",
+		"sensiboAPI": "9df9fc0f.e285",
+		"name": "Get Config",
+		"pod": "KN6PnUwG",
+		"getconfig": true,
+		"getACState": false,
+		"polltime": "0",
+		"x": 360,
+		"y": 160,
+		"wires": [
+			[
+				"639e57ac.9e94d8"
+			]
+		]
+	},
+	{
+		"id": "cc146699.ff4568",
+		"type": "inject",
+		"z": "e370ff22.5bfa7",
+		"name": "",
+		"props": [
+			{
+				"p": "payload"
+			},
+			{
+				"p": "topic",
+				"vt": "str"
+			}
+		],
+		"repeat": "",
+		"crontab": "",
+		"once": false,
+		"onceDelay": 0.1,
+		"topic": "",
+		"payload": "",
+		"payloadType": "date",
+		"x": 120,
+		"y": 220,
+		"wires": [
+			[
+				"73d59c2a.186c64"
+			]
+		]
+	},
+	{
+		"id": "ab07e811.2fece8",
+		"type": "debug",
+		"z": "e370ff22.5bfa7",
+		"name": "",
+		"active": true,
+		"tosidebar": true,
+		"console": false,
+		"tostatus": false,
+		"complete": "true",
+		"targetType": "full",
+		"statusVal": "",
+		"statusType": "auto",
+		"x": 600,
+		"y": 220,
+		"wires": []
+	},
+	{
+		"id": "73d59c2a.186c64",
+		"type": "sensibo in",
+		"z": "e370ff22.5bfa7",
+		"sensiboAPI": "9df9fc0f.e285",
+		"name": "Get AC State",
+		"pod": "KN6PnUwG",
+		"getconfig": false,
+		"getACState": true,
+		"polltime": "0",
+		"x": 360,
+		"y": 220,
+		"wires": [
+			[
+				"ab07e811.2fece8"
+			]
+		]
+	},
+	{
+		"id": "d67bd005.aac02",
+		"type": "inject",
+		"z": "e370ff22.5bfa7",
+		"name": "",
+		"props": [
+			{
+				"p": "payload"
+			},
+			{
+				"p": "topic",
+				"vt": "str"
+			}
+		],
+		"repeat": "",
+		"crontab": "",
+		"once": false,
+		"onceDelay": 0.1,
+		"topic": "",
+		"payload": "",
+		"payloadType": "date",
+		"x": 120,
+		"y": 500,
+		"wires": [
+			[
+				"9224aea1.ba96d"
+			]
+		]
+	},
+	{
+		"id": "9224aea1.ba96d",
+		"type": "change",
+		"z": "e370ff22.5bfa7",
+		"name": "Set as Heat to 25",
+		"rules": [
+			{
+				"t": "set",
+				"p": "targetTemperature",
+				"pt": "msg",
+				"to": "25",
+				"tot": "str"
+			},
+			{
+				"t": "set",
+				"p": "mode",
+				"pt": "msg",
+				"to": "heat",
+				"tot": "str"
+			}
+		],
+		"action": "",
+		"property": "",
+		"from": "",
+		"to": "",
+		"reg": false,
+		"x": 370,
+		"y": 500,
+		"wires": [
+			[
+				"8fa277a4.f03118"
+			]
+		]
+	},
+	{
+		"id": "2e593879.b7aa08",
+		"type": "inject",
+		"z": "e370ff22.5bfa7",
+		"name": "",
+		"props": [
+			{
+				"p": "payload"
+			},
+			{
+				"p": "topic",
+				"vt": "str"
+			}
+		],
+		"repeat": "",
+		"crontab": "",
+		"once": false,
+		"onceDelay": 0.1,
+		"topic": "",
+		"payload": "",
+		"payloadType": "date",
+		"x": 120,
+		"y": 280,
+		"wires": [
+			[
+				"9c056b21.279a78"
+			]
+		]
+	},
+	{
+		"id": "223d9a97.f7d2f6",
+		"type": "debug",
+		"z": "e370ff22.5bfa7",
+		"name": "",
+		"active": true,
+		"tosidebar": true,
+		"console": false,
+		"tostatus": false,
+		"complete": "payload",
+		"targetType": "msg",
+		"statusVal": "",
+		"statusType": "auto",
+		"x": 810,
+		"y": 280,
+		"wires": []
+	},
+	{
+		"id": "9c056b21.279a78",
+		"type": "sensibo in",
+		"z": "e370ff22.5bfa7",
+		"sensiboAPI": "9df9fc0f.e285",
+		"name": "Get Supported Modes",
+		"pod": "KN6PnUwG",
+		"getconfig": true,
+		"getACState": false,
+		"polltime": "0",
+		"x": 390,
+		"y": 280,
+		"wires": [
+			[
+				"981c8860.f0a398"
+			]
+		]
+	},
+	{
+		"id": "981c8860.f0a398",
+		"type": "change",
+		"z": "e370ff22.5bfa7",
+		"name": "Filter Modes",
+		"rules": [
+			{
+				"t": "set",
+				"p": "payload",
+				"pt": "msg",
+				"to": "result.remoteCapabilities.modes",
+				"tot": "msg"
+			}
+		],
+		"action": "",
+		"property": "",
+		"from": "",
+		"to": "",
+		"reg": false,
+		"x": 610,
+		"y": 280,
+		"wires": [
+			[
+				"223d9a97.f7d2f6"
+			]
+		]
+	},
+	{
+		"id": "ec3ac02a.7eaa2",
+		"type": "inject",
+		"z": "e370ff22.5bfa7",
+		"name": "Check Daily",
+		"props": [
+			{
+				"p": "payload"
+			},
+			{
+				"p": "topic",
+				"vt": "str"
+			}
+		],
+		"repeat": "86400",
+		"crontab": "",
+		"once": true,
+		"onceDelay": 0.1,
+		"topic": "",
+		"payload": "",
+		"payloadType": "date",
+		"x": 110,
+		"y": 600,
+		"wires": [
+			[
+				"3ce65797.06c4a8"
+			]
+		]
+	},
+	{
+		"id": "1bfd39de.280b56",
+		"type": "debug",
+		"z": "e370ff22.5bfa7",
+		"name": "",
+		"active": true,
+		"tosidebar": true,
+		"console": false,
+		"tostatus": false,
+		"complete": "true",
+		"targetType": "full",
+		"statusVal": "",
+		"statusType": "auto",
+		"x": 950,
+		"y": 600,
+		"wires": []
+	},
+	{
+		"id": "3ce65797.06c4a8",
+		"type": "sensibo in",
+		"z": "e370ff22.5bfa7",
+		"sensiboAPI": "9df9fc0f.e285",
+		"name": "Check Filter Cleaning",
+		"pod": "KN6PnUwG",
+		"getconfig": true,
+		"getACState": false,
+		"polltime": "0",
+		"x": 320,
+		"y": 600,
+		"wires": [
+			[
+				"3d2b1f3f.52ded"
+			]
+		]
+	},
+	{
+		"id": "3d2b1f3f.52ded",
+		"type": "switch",
+		"z": "e370ff22.5bfa7",
+		"name": "",
+		"property": "result.filtersCleaning.shouldCleanFilters",
+		"propertyType": "msg",
+		"rules": [
+			{
+				"t": "true"
+			}
+		],
+		"checkall": "true",
+		"repair": false,
+		"outputs": 1,
+		"x": 490,
+		"y": 600,
+		"wires": [
+			[
+				"5f96122b.22db2c"
+			]
+		]
+	},
+	{
+		"id": "bb11229e.279c5",
+		"type": "template",
+		"z": "e370ff22.5bfa7",
+		"name": "",
+		"field": "payload",
+		"fieldType": "msg",
+		"format": "handlebars",
+		"syntax": "mustache",
+		"template": "The filter was last cleaned {{payload}} ago.\n\nYou might want to clean it and reset via the Sensibo App",
+		"output": "str",
+		"x": 820,
+		"y": 600,
+		"wires": [
+			[
+				"1bfd39de.280b56"
+			]
+		]
+	},
+	{
+		"id": "5f96122b.22db2c",
+		"type": "function",
+		"z": "e370ff22.5bfa7",
+		"name": "Convert to hours",
+		"func": "\nseconds = Number(msg.result.filtersCleaning.acOnSecondsSinceLastFiltersClean);\nvar d = Math.floor(seconds / (3600*24));\nvar h = Math.floor(seconds % (3600*24) / 3600);\n\nvar dDisplay = d > 0 ? d + (d == 1 ? \" day, \" : \" days, \") : \"\";\nvar hDisplay = h > 0 ? h + (h == 1 ? \" hour, \" : \" hours, \") : \"\";\n\nmsg.payload = dDisplay + hDisplay\n\n\nreturn msg;",
+		"outputs": 1,
+		"noerr": 0,
+		"initialize": "",
+		"finalize": "",
+		"libs": [],
+		"x": 640,
+		"y": 600,
+		"wires": [
+			[
+				"bb11229e.279c5"
+			]
+		]
+	},
+	{
+		"id": "b786ea1.3f35918",
+		"type": "comment",
+		"z": "e370ff22.5bfa7",
+		"name": "Check Filter Cleaning",
+		"info": "Sample flow that runs once a day, get the config and checks the filter cleaning results.  A basic function to make the results human readable and then upto you how you get advised of the  result",
+		"x": 140,
+		"y": 560,
+		"wires": []
+	},
+	{
+		"id": "6364d97a.c23038",
+		"type": "comment",
+		"z": "e370ff22.5bfa7",
+		"name": "Sensibo Examples",
+		"info": "Some examples that show the different functionality.\n\nThe get supported modes sample is very helpful to find out what values you can send via Send node.\n\n",
+		"x": 130,
+		"y": 40,
+		"wires": []
+	},
+	{
+		"id": "9df9fc0f.e285",
+		"type": "sensibo-config",
+		"senAPI": "Enter Your API Here"
+	}
+]
