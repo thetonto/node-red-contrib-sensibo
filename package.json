@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-sensibo",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Communication nodes to Sensibo cloud",
   "keywords": [
     "node-red",
@@ -16,7 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "lodash": "^4.17.21",
-    "node-fetch": "^2.7.0"
+    "node-fetch": "^3.3.1"
   },
   "repository": {
     "type": "git",
@@ -28,14 +28,16 @@
     }
   },
   "devDependencies": {
-    "eslint": "^8.57.1",
+    "eslint": "^8.40.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-standard": "^17.1.0",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-n": "^16.6.2",
-    "eslint-plugin-promise": "^6.6.0",
-    "mocha": "^10.8.2",
-    "node-red": "^4.0.11",
-    "node-red-node-test-helper": "^0.3.4"
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-standard": "^4.1.0",
+    "mocha": "^10.2.0",
+    "node-red": "^3.0.2",
+    "node-red-node-test-helper": "^0.3.1",
+    "npmignore": "^0.3.0"
   }
 }
