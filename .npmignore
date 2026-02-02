@@ -1,0 +1,16 @@
+# Rules from: /home/david/Nextcloud/devCloud/nodeProjects/sensibo/.gitignore
+node_modules
+
+.DS_Store
+._.DS_Store
+working/
+.vscode/
+sensibo.code-workspace
+test/credentials.js
+html/nodeRED.css
+
+
+# npmignore - content above this line is automatically generated and modifications may be omitted
+# see npmjs.com/npmignore for more details.
+src/
+test/

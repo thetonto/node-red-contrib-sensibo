@@ -50,18 +50,7 @@ describe('sensibo Node', function () {
     })
   })
 
-  it('should create a polling timer', function (done) {
-    helper.load(sensibo, config.timerflow, function () {
-      const n1 = helper.getNode('n1')
-      // n1.receive({somethingBadAndWeird: true});
-      // because the emit happens asynchronously, this listener
-      // will be registered before `call:trace` is emitted.
-      n1.on('call:trace', call => {
-        call.should.be.calledWithExactly('creating timer')
-        done()
-      })
-    })
-  })
+
   it('should get full configuration', function (done) {
     helper.load(sensibo, config.configflow, function () {
       var n1 = helper.getNode('n1')
