@@ -1,5 +1,9 @@
-/* eslint-disable */
-var config = require('./credentials')
+var fs = require('fs')
+var path = require('path')
+var credentialsPath = path.join(__dirname, 'credentials.js')
+var config = fs.existsSync(credentialsPath)
+  ? require('./credentials')
+  : require('./credentials_sample')
 this.flow = [
 	{
 		"id": "n1",

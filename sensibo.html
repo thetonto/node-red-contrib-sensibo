@@ -4,9 +4,13 @@
         RED.nodes.registerType('sensibo-config',{
             category: 'config',
             defaults: {
-                senAPI: {value:""}
             },
-            label: function() { return this.senAPI; }
+            credentials: {
+                senAPI: {type:"password"}
+            },
+            label: function() {
+                return this.name || "Sensibo API";
+            },
         });
     })();
     </script>
@@ -21,14 +25,41 @@
         </div>
         <div class="form-row">
             <label style="margin-left: 10px; margin-right: -10px;" for="node-config-input-senAPI"><i class="fa fa-key"></i> <span data-i18n="sensibo.label.key"></span></label>
-            <input type="text" id="node-config-input-senAPI">
+            <input type="password" id="node-config-input-senAPI">
         </div>
 
     </div>
 </script>
 
 <script type="text/javascript">
-   
+    function lookupPods(buttonSelector, inputSelector, configSelector) {
+        const button = $(buttonSelector);
+        const configNodeId = $(configSelector).val();
+
+        if (!configNodeId) {
+            RED.notify("Select a Sensibo API configuration before looking up pods.", "warning");
+            return;
+        }
+
+        button.addClass('disabled');
+
+        $.getJSON('sensibo', { lkup: 'node', config: configNodeId }, function(data) {
+            button.removeClass('disabled');
+            $(inputSelector).autocomplete({
+                source:data,
+                minLength:0,
+                close: function() {
+                    $(inputSelector).autocomplete("destroy");
+                }
+            }).autocomplete("search","");
+        }).fail(function(jqXHR) {
+            button.removeClass('disabled');
+            const message = jqXHR.responseJSON && jqXHR.responseJSON.error
+                ? jqXHR.responseJSON.error
+                : "Sensibo pod lookup failed.";
+            RED.notify(message, "error");
+        });
+    }
     
     RED.nodes.registerType('sensibo in',{
         category: 'home automation',
@@ -54,17 +85,7 @@
         oneditprepare: function() {         
             //Add Pods from the lookup
             $("#node-lookup-pod").click(function() {
-                $("#node-lookup-pod").addClass('disabled');
-                $.getJSON('sensibo?lkup=node',function(data) {
-                    $("#node-lookup-pod").removeClass('disabled');
-                    $("#node-input-pod").autocomplete({
-                        source:data,
-                        minLength:0,
-                        close: function( event, ui ) {
-                            $("#node-input-pod").autocomplete( "destroy" );
-                        }
-                    }).autocomplete("search","");
-                });
+                lookupPods("#node-lookup-pod", "#node-input-pod", "#node-input-sensiboAPI");
             });
 
 
@@ -139,18 +160,7 @@
         oneditprepare: function() {         
             //Add Pods from the lookup
             $("#node-lookup-pod").click(function() {
-                $("#node-lookup-pod").addClass('disabled');
-                $.getJSON('sensibo?lkup=node',function(data) {
-                    $("#node-lookup-pod").removeClass('disabled');
-                    $("#node-input-pod").autocomplete({
-                        source:data,
-                        minLength:0,
-                        close: function( event, ui ) {
-                            $("#node-input-pod").autocomplete( "destroy" );
-                            //alert("finished - should now get the configuration")
-                        }
-                    }).autocomplete("search","");
-                });
+                lookupPods("#node-lookup-pod", "#node-input-pod", "#node-input-sensiboAPI");
             });
         },
         oneditsave: function(){

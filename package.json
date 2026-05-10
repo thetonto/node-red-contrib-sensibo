@@ -8,6 +8,9 @@
   ],
   "main": "sensibo.js",
   "scripts": {
+    "check": "npm run lint && npm test",
+    "lint": "eslint .",
+    "prepublishOnly": "npm run check",
     "start": "node sensibo.js",
     "Test Get Measurement": "node working/getmeasurement.js",
     "test": "mocha \"test/**/*_spec.js\""
@@ -15,8 +18,8 @@
   "author": "David deMarco",
   "license": "ISC",
   "dependencies": {
-    "lodash": "^4.17.21",
-    "node-fetch": "^3.3.1"
+    "lodash": "^4.18.1",
+    "node-fetch": "^3.3.2"
   },
   "repository": {
     "type": "git",
@@ -28,16 +31,12 @@
     }
   },
   "devDependencies": {
-    "eslint": "^8.40.0",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-standard": "^17.0.0",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^6.1.1",
-    "eslint-plugin-standard": "^4.1.0",
-    "mocha": "^10.2.0",
-    "node-red": "^3.0.2",
-    "node-red-node-test-helper": "^0.3.1",
-    "npmignore": "^0.3.0"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.3.0",
+    "globals": "^17.6.0",
+    "mocha": "^11.7.5",
+    "node-red": "^4.1.10",
+    "node-red-node-test-helper": "^0.3.6",
+    "npmignore": "^0.3.5"
   }
 }

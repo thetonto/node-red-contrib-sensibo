@@ -6,37 +6,105 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 const apiRoot = 'https://home.sensibo.com/api/v2'
 
 module.exports = function (RED) {
+  function getConfigApiKey (configNode) {
+    return configNode && configNode.sensibo_api
+  }
+
+  function createConfigError (message, statusCode) {
+    const err = new Error(message)
+    if (statusCode) {
+      err.statusCode = statusCode
+    }
+    return err
+  }
+
+  function parseSensiboResponse (res) {
+    return res.text().then((body) => {
+      let data = {}
+
+      if (body) {
+        try {
+          data = JSON.parse(body)
+        } catch {
+          throw createConfigError('Sensibo returned an invalid JSON response', res.status)
+        }
+      }
+
+      if (!res.ok) {
+        const message = data.message || data.reason || `Sensibo request failed with status ${res.status}`
+        throw createConfigError(message, res.status)
+      }
+
+      if (data && data.status && data.status !== 'success') {
+        const message = data.message || data.reason || `Sensibo request returned status ${data.status}`
+        throw createConfigError(message, res.status)
+      }
+
+      return data
+    })
+  }
+
+  function sensiboRequest (path, apiKey, options = {}, query = {}) {
+    if (!apiKey) {
+      return Promise.reject(createConfigError('Sensibo API key is not configured'))
+    }
+
+    const apiURI = new URL(apiRoot + path)
+    apiURI.searchParams.append('apiKey', apiKey)
+    Object.entries(query).forEach(([key, value]) => {
+      if (typeof value !== 'undefined' && value !== null && value !== '') {
+        apiURI.searchParams.append(key, value)
+      }
+    })
+
+    const requestOptions = {
+      method: 'GET',
+      headers: { accept: 'application/json' },
+      ...options
+    }
+
+    return fetch(apiURI, requestOptions).then(parseSensiboResponse)
+  }
+
   function sensiboGet (config) {
     RED.nodes.createNode(this, config)
     // Set the node equal to to top level of this for use in functions
     var node = this
     node.api = RED.nodes.getNode(config.sensiboAPI)
+    node.interval_id = null
 
     this.on('input', function (msg, send, done) {
       // If this is pre-1.0, 'send' will be undefined, so fallback to node.send
       send = send || function () { node.send.apply(node, arguments) }
 
+      if (!node.api || !getConfigApiKey(node.api)) {
+        const err = createConfigError('Sensibo API configuration is missing')
+        node.status({ fill: 'red', shape: 'dot', text: 'error' })
+        if (done) {
+          done(err)
+        } else {
+          node.error(err, msg)
+        }
+        return
+      }
+
+      if (!config.pod) {
+        const err = createConfigError('A Sensibo pod must be selected')
+        node.status({ fill: 'red', shape: 'dot', text: 'error' })
+        if (done) {
+          done(err)
+        } else {
+          node.error(err, msg)
+        }
+        return
+      }
+
       // Set the status on the node
       this.status({ fill: 'green', shape: 'ring', text: 'polling' })
 
       if (config.getconfig || config.getACState) {
-        var apiURI = new URL(apiRoot + '/pods/' + config.pod)
-        apiURI.searchParams.append('apiKey', node.api.sensibo_api)
-        // Set the search depending on of we are getting the whole config or just the acState
-        if (config.getconfig) {
-          apiURI.searchParams.append('fields', '*')
-        } else {
-          apiURI.searchParams.append('fields', 'acState')
-        }
-
-        console.log(apiURI.href)
-        var options = {
-          method: 'GET',
-          headers: { accept: 'application/json' } // Set to JSON
-        }
-
-        fetch(apiURI, options)
-          .then(res => res.json()) // new fetch code convert the message to JSON for the old code to work.
+        const fields = config.getconfig ? '*' : 'acState'
+        sensiboRequest(`/pods/${config.pod}`, getConfigApiKey(node.api), {}, { fields })
           .then(function (cfg) {
             node.status({ fill: 'green', shape: 'dot', text: 'Connected' })
             send(cfg)
@@ -62,15 +130,11 @@ module.exports = function (RED) {
         // Do the call to Sensibo as a promise and prepare message
         // Now been updated to use Node-fetch directly
 
-        apiURI = new URL(apiRoot + '/pods/' + config.pod + '/measurements/')
-        apiURI.searchParams.append('apiKey', node.api.sensibo_api)
-        options = {
-          method: 'GET',
-          headers: { accept: 'application/json' } // Set to JSON
-        }
-        fetch(apiURI, options)
-          .then(res => res.json())
+        sensiboRequest(`/pods/${config.pod}/measurements/`, getConfigApiKey(node.api))
           .then(meas => {
+            if (!meas.result || !meas.result[0]) {
+              throw createConfigError('No measurement data was returned for this pod')
+            }
             msg.temperature = meas.result[0].temperature
             msg.payload = meas.status
             msg.humidity = meas.result[0].humidity
@@ -101,14 +165,10 @@ module.exports = function (RED) {
 
     this.on('close', function (removed, done) {
       if (removed) {
-        if (node.interval_id !== null) {
+        if (node.interval_id) {
           clearInterval(node.interval_id)
+          node.interval_id = null
         }
-
-        console.log('Sensibo - The node and timer has been deleted')
-      } else {
-        // Not sure if this is needed #TODO when would a node be restarted
-        // console.log('Sensibo - The node has been restarted')
       }
       done()
     })
@@ -116,7 +176,7 @@ module.exports = function (RED) {
     // Only set interval time if one has been set.
     if (config.polltime > 0) {
       // First check if we have already have a timer and cancel
-      if (node.interval_id !== null) {
+      if (node.interval_id) {
         clearInterval(node.interval_id)
       }
       // send trace message for testing framework
@@ -127,10 +187,11 @@ module.exports = function (RED) {
       }
       // Set the timer from the configuration page and convert to millisecond
       , config.polltime * 1000)
-    } else if (config.polltime === 0) {
-      if (node.interval_id !== null) {
+    } else if (Number(config.polltime) === 0) {
+      if (node.interval_id) {
         // Kill old timer should it exist and we change to 0 polling
         clearInterval(node.interval_id)
+        node.interval_id = null
       }
     }
   }
@@ -147,69 +208,88 @@ module.exports = function (RED) {
 
       this.status({ fill: 'green', shape: 'ring', text: 'sending' })
       node = this
+
+      if (!node.api || !getConfigApiKey(node.api)) {
+        const err = createConfigError('Sensibo API configuration is missing')
+        node.status({ fill: 'red', shape: 'dot', text: 'error' })
+        if (done) {
+          done(err)
+        } else {
+          node.error(err, msg)
+        }
+        return
+      }
+
+      if (!config.pod) {
+        const err = createConfigError('A Sensibo pod must be selected')
+        node.status({ fill: 'red', shape: 'dot', text: 'error' })
+        if (done) {
+          done(err)
+        } else {
+          node.error(err, msg)
+        }
+        return
+      }
+
       // parse message
       const cmdData = {}
       // #TODO - Map against possible values and validate
       if (typeof msg.on !== 'undefined') {
-        if (msg.on === 'true' | msg.on) {
-          cmdData.on = true
+        if (typeof msg.on === 'string') {
+          cmdData.on = msg.on.trim().toLowerCase() === 'true'
         } else {
-          cmdData.on = false
-        };
-      };
+          cmdData.on = Boolean(msg.on)
+        }
+      }
       if (typeof msg.swing !== 'undefined') {
         cmdData.swing = msg.swing
-      };
+      }
       if (typeof msg.mode !== 'undefined') {
         cmdData.mode = msg.mode
-      };
+      }
       if (typeof msg.fanlevel !== 'undefined') {
         cmdData.fanLevel = msg.fanlevel
-      };
+      }
       if (typeof msg.targetTemperature !== 'undefined') {
         if (typeof msg.targetTemperature === 'string') {
-          console.log('Target Temperature is a string so converting to integer')
-          cmdData.targetTemperature = parseInt(msg.targetTemperature)
+          cmdData.targetTemperature = parseInt(msg.targetTemperature, 10)
         } else {
           cmdData.targetTemperature = msg.targetTemperature
         }
-      };
-
-      console.log('Compiled Command is:' + JSON.stringify(cmdData))
-
-      var apiURI = new URL(apiRoot + '/pods/' + config.pod)
-      apiURI.searchParams.append('apiKey', node.api.sensibo_api)
-      apiURI.searchParams.append('fields', 'acState') // Only get the acState field
-      var options = {
-        method: 'GET',
-        headers: { accept: 'application/json' } // Set to JSON
+        if (Number.isNaN(cmdData.targetTemperature)) {
+          const err = createConfigError('targetTemperature must be a valid number')
+          node.status({ fill: 'red', shape: 'dot', text: 'error' })
+          if (done) {
+            done(err)
+          } else {
+            node.error(err, msg)
+          }
+          return
+        }
       }
 
-      fetch(apiURI, options)
-        .then(res => res.json()) // new fetch code convert the message to JSON for the old code to work.
+      sensiboRequest(`/pods/${config.pod}`, getConfigApiKey(node.api), {}, { fields: 'acState' })
         .then((data) => {
           var acState = _.merge(data.result, cmdData)
           var newState = {}
           newState.acState = acState
-          var apiURIPatch = new URL(apiRoot + '/pods/' + config.pod + '/acStates')
-          apiURIPatch.searchParams.append('apiKey', node.api.sensibo_api)
-          var options = {
+          return sensiboRequest(`/pods/${config.pod}/acStates`, getConfigApiKey(node.api), {
             method: 'POST',
-            headers: { accept: 'application/json' }, // Set to JSON
+            headers: {
+              accept: 'application/json',
+              'content-type': 'application/json'
+            },
             body: JSON.stringify(newState)
+          })
+        })
+        .then((cmdResponse) => {
+          msg.payload = cmdResponse
+          node.status({ fill: 'green', shape: 'dot', text: 'Connected' })
+          send(msg)
+          // Check done exists (1.0+)
+          if (done) {
+            done()
           }
-
-          fetch(apiURIPatch, options)
-            .then(res => res.json())
-            .then((cmdData) => {
-              msg.payload = cmdData
-              node.status({ fill: 'green', shape: 'dot', text: 'Connected' })
-              send(msg)
-              // Check done exists (1.0+)
-              if (done) {
-                done()
-              }
-            })
         })
 
         .catch(function (err) {
@@ -231,44 +311,44 @@ module.exports = function (RED) {
 
   function sensiboConfig (n) {
     RED.nodes.createNode(this, n)
-    this.sensibo_api = n.senAPI
-    // Create the admin server here so we have access to API Key.
-    RED.httpAdmin.get('/sensibo', RED.auth.needsPermission('serial.read'), function (req, res) {
-      // get the query string
-      const retrieveType = req.query.lkup
-      console.log('Type of data to retrieve is ' + retrieveType)
-      var apiURI = new URL(apiRoot + '/users/me/pods')
-      apiURI.searchParams.append('apiKey', n.senAPI) // set the key directly to node-fetch
-      apiURI.searchParams.append('fields', 'id,room')
-      var options = {
-        method: 'GET',
-        headers: { accept: 'application/json' } // Set to JSON
-      }
-
-      // 20210429 - New fetch implemented
-      fetch(apiURI, options)
-        .then(res => res.json())
-        .then(function (pods) {
-          // Convert result into nice JSON to send to webclients
-          var results = []
-          _.forEach(pods.result, function (pods, index) {
-            const item = {}
-            item.value = pods.id
-            item.label = pods.room.name
-            results.push(item)
-          })
-          console.log('Sending back results of ' + JSON.stringify(results))
-          // set the response back
-          res.json(results)
-        })
-        .catch(function (err) {
-          // Error Handler
-          console.log('Sensibo Admin lookup failed with' + err)
-        })
-    }) // end of RED.http
+    this.sensibo_api = this.credentials && this.credentials.senAPI
   }
 
-  RED.nodes.registerType('sensibo-config', sensiboConfig)
+  RED.httpAdmin.get('/sensibo', RED.auth.needsPermission('flows.read'), function (req, res) {
+    const configNodeId = req.query.config
+    const configNode = RED.nodes.getNode(configNodeId)
+    const apiKey = getConfigApiKey(configNode)
+
+    if (!configNodeId || !configNode) {
+      res.status(400).json({ error: 'A valid Sensibo API configuration must be selected.' })
+      return
+    }
+
+    sensiboRequest('/users/me/pods', apiKey, {}, { fields: 'id,room' })
+      .then(function (pods) {
+        // Convert result into nice JSON to send to webclients
+        var results = []
+        _.forEach(pods.result, function (pod) {
+          const item = {}
+          item.value = pod.id
+          item.label = pod.room.name
+          results.push(item)
+        })
+        // set the response back
+        res.json(results)
+      })
+      .catch(function (err) {
+        res.status(err.statusCode || 500).json({
+          error: err.message || 'Sensibo pod lookup failed'
+        })
+      })
+  })
+
+  RED.nodes.registerType('sensibo-config', sensiboConfig, {
+    credentials: {
+      senAPI: { type: 'password' }
+    }
+  })
   RED.nodes.registerType('sensibo in', sensiboGet)
   RED.nodes.registerType('sensibo send', sensiboSend)
 }
