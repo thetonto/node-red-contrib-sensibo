@@ -1,6 +1,3 @@
-/* eslint-disable no-undef */
-
-// eslint-disable-next-line no-undef
 $(document).ready(function () {
   $('#node-input-getConfig').change(function () {
     if (this.checked) {

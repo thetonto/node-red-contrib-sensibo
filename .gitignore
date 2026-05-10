@@ -7,3 +7,5 @@ working/
 sensibo.code-workspace
 test/credentials.js
 html/nodeRED.css
+AGENTS.md
+package-lock.json

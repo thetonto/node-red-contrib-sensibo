@@ -33,6 +33,16 @@ sudo systemctl restart nodered.service
 
 Please log any issues, feature requests on Github.  All feedback is appreciated.  
 
+## Development ##
+
+Before publishing a new release, run:
+
+```
+npm run check
+```
+
+This runs both linting and the automated test suite. `npm publish` now also runs the same check automatically via `prepublishOnly`.
+
 ## Features ##
 
 - Lookup of available PODS via room name.
