@@ -311,7 +311,8 @@ module.exports = function (RED) {
 
   function sensiboConfig (n) {
     RED.nodes.createNode(this, n)
-    this.sensibo_api = this.credentials && this.credentials.senAPI
+    const credentialApiKey = this.credentials && this.credentials.senAPI
+    this.sensibo_api = credentialApiKey || n.senAPI
   }
 
   RED.httpAdmin.get('/sensibo', RED.auth.needsPermission('flows.read'), function (req, res) {
