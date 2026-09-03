@@ -41,3 +41,11 @@ Support for retreiving full device informationn so you can see all available fun
 - Improved the send function with fields 
 - Fixed potential issue where TargetTemp is sent as a string.  Now converted to in to prevent failure
 - Examples now provided to show the different functions
+
+**V 0.6.1 - 0.6.3**
+- Import of the fetch command updated, dependency and security bumps.
+- Modernised the package: node-fetch based `sensiboRequest` helper with proper error handling, API key moved to a Node-RED credentials (password) field, ESLint flat config and GitHub Actions CI.
+
+**V 0.6.4**
+- Declared compatibility metadata for the Node-RED flow library: minimum Node-RED version (`>=3.0.0`) and Node.js engine (`>=18`).
+- Refreshed development dependencies (eslint, globals).
