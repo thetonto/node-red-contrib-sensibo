@@ -4,7 +4,8 @@ const globals = require('globals')
 module.exports = [
   {
     ignores: [
-      'node_modules/**'
+      'node_modules/**',
+      'working/**'
     ]
   },
   js.configs.recommended,

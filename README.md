@@ -8,27 +8,34 @@ This is a release of two nodes to communicate with the Sensibo Cloud.
 - Sensibo-in -> Either trigger or timer poll the cloud for measurements.  Can also retrieve full config of the node 
 - Sensibo-send ->  Send commands to the cloud.
 
-Once the API key is setup there is automatic pod discovery of available pods for configuration (no need to lookup podID's), thou it will store the ID after lookup. Sorry just not been able to resolve this.
+Once the API key is set up there is automatic pod discovery of available pods for configuration (no need to look up pod IDs), though it will store the ID after lookup.
 
-## Update for April 2021 ##
-The code has now been updated to remove the deprecated requests module and the other promises modules that relied on it.  I have updated all the code to node-fetch with is a simple library that will hopefully be supported going forward.  The old versions will continue to work and I've updated the code to V0.5.0 which will mean current users will need to force an upgrade.
+## Requirements ##
 
-All testing so far is that the new version works the same way and I have fixed the issue of Binary true/false vs String true/false when calling the node.
+- Node-RED 3.0 or newer
+- Node.js 18 or newer
 
-There have been some very good feedback as to the way the messages go in and out of the nodes and in the interest of maintaining compatibility with all the current users this remains the same.
+## Recent Updates ##
+
+- **0.6.x** – Package modernised. The HTTP layer was refactored onto a single `node-fetch` helper with proper error handling, so failed requests now surface a meaningful message on the node and via `catch`/`done` instead of failing silently. The Sensibo API key is now stored as a Node-RED **credential** (encrypted, password field) rather than plain text in the flow. ESLint flat config and GitHub Actions CI were also added.
+- **0.5.0** – Removed the deprecated `request` module and its promise dependencies; all calls moved to `node-fetch`. Also fixed binary vs string `true`/`false` handling when calling the send node. Existing users need to force an upgrade.
+
+The way messages go in and out of the nodes is unchanged, to keep compatibility with existing flows.
 
 ## Installation ##
 
-In your node-red user directory, typically ~/.node-red, run:
+In your Node-RED user directory, typically `~/.node-red`, run:
 
 ```
-[cd ./node.red/]
 npm install node-red-contrib-sensibo
 ```
-restart node-red
+
+Then restart Node-RED, e.g.:
+
 ```
 sudo systemctl restart nodered.service
 ```
+
 ## Support / Issues ##
 
 Please log any issues, feature requests on Github.  All feedback is appreciated.  
@@ -45,11 +52,13 @@ This runs both linting and the automated test suite. `npm publish` now also runs
 
 ## Features ##
 
-- Lookup of available PODS via room name.
+- Lookup of available pods via room name.
 - User defined polling of temperature and humidity from cloud (min 60 seconds)
 - Option to retrieve all device information
 - Option to retrieve the current AC State
-- Example flows provided to show the various deployments.  Help Pages also well populated.
+- API key stored as an encrypted Node-RED credential
+- Clear error reporting on the node status and via `msg` / `done` when a request fails
+- Example flows provided to show the various deployments.  Help pages also well populated.
 
 ## Device Information ##
 While there are many common options each device type has additional supported options.  To find the full range of option you can configure the Sensibo mode to retrieve the full configuration in the msg.payload.  The examples provided has a nifty flow to show you the various modes you pod supports.  
